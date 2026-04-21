@@ -1,0 +1,26 @@
+{
+  "name": "hs-market-bot",
+  "version": "1.0.0",
+  "description": "Hero Siege Market Calculator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vkvk111/hs-market-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vkvk111/hs-market-bot/issues"
+  },
+  "homepage": "https://github.com/vkvk111/hs-market-bot#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "express": "^5.2.1",
+    "ws": "^8.20.0"
+  }
+}

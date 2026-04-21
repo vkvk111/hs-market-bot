@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Siege Market Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card h2 {
+            color: #ffd700;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        /* Price Tables Section */
+        .prices-section {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .prices-section { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 700px) {
+            .prices-section { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .ore-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .ore-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .ore-name {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .ore-cost-input {
+            width: 75px;
+            padding: 5px 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            font-size: 0.85rem;
+            text-align: right;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .ore-cost-input:focus {
+            outline: 2px solid #ffd700;
+            background: rgba(255,255,255,0.25);
+        }
+
+        .mat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 0.8rem;
+        }
+
+        .mat-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mat-info span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .mat-chance {
+            font-size: 0.65rem;
+            padding: 2px 4px;
+            border-radius: 3px;
+            background: rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .mat-price-input {
+            width: 80px;
+            padding: 5px 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 0.85rem;
+            text-align: right;
+            font-family: 'Consolas', 'Monaco', monospace;
+            flex-shrink: 0;
+        }
+
+        .mat-price-input:focus {
+            outline: 2px solid #ffd700;
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* Hide number input spinners */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .chance-20 { color: #4CAF50; }
+        .chance-12 { color: #8BC34A; }
+        .chance-5 { color: #FFC107; }
+        .chance-1 { color: #ff6b6b; }
+
+        .craft-cost {
+            font-size: 0.7rem;
+            color: #888;
+            margin-left: 3px;
+        }
+
+        .craft-cost.better {
+            color: #4CAF50;
+        }
+
+        /* Recipes Section */
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+        }
+
+        .recipe-card {
+            background: rgba(0,0,0,0.25);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .recipe-header {
+            margin-bottom: 10px;
+        }
+
+        .recipe-name {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .profit-section {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,215,0,0.1);
+            border-radius: 6px;
+        }
+
+        .profit-label {
+            font-size: 0.85rem;
+            color: #ffd700;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .profit-options {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .profit-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.15);
+            color: #ccc;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .profit-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .profit-btn.active {
+            background: #ffd700;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        .custom-profit-input {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .custom-profit-input.visible {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-profit-input input {
+            width: 80px;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            font-size: 0.85rem;
+            text-align: right;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .custom-profit-input input:focus {
+            outline: 2px solid #ffd700;
+        }
+
+        .custom-profit-input select {
+            padding: 6px 8px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            font-size: 0.85rem;
+        }
+
+        .sell-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+        }
+
+        .sell-price-display {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .min-sell {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .tax-info {
+            font-size: 0.75rem;
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .recipe-materials {
+            margin-bottom: 10px;
+        }
+
+        .recipe-mat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .recipe-mat-row:last-child {
+            border-bottom: none;
+        }
+
+        .recipe-mat-name {
+            color: #ccc;
+        }
+
+        .recipe-mat-qty {
+            color: #888;
+        }
+
+        .recipe-mat-cost {
+            font-weight: bold;
+        }
+
+        .recipe-summary {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 0.85rem;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 5px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        .positive { color: #4CAF50; }
+        .negative { color: #ff4757; }
+
+        .verdict-mini {
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .verdict-mini.worth {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .verdict-mini.not-worth {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        /* Custom Calculator */
+        .custom-section {
+            margin-top: 20px;
+        }
+
+        .custom-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .custom-header input {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .custom-header input:focus {
+            outline: 2px solid #ffd700;
+            background: rgba(255,255,255,0.25);
+        }
+
+        .custom-header input[type="number"] {
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: right;
+            width: 120px;
+        }
+
+        .custom-materials {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
+        }
+
+        .custom-mat-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .custom-mat-row select {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 0.85rem;
+        }
+
+        .custom-mat-row select option {
+            background: #1a1a2e;
+        }
+
+        .custom-mat-row input {
+            width: 50px;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .custom-mat-row .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add {
+            background: #4CAF50;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-add:hover { background: #45a049; }
+
+        .btn-calc {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #1a1a2e;
+            font-weight: bold;
+            padding: 12px 30px;
+            margin-top: 15px;
+        }
+
+        .btn-calc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,215,0,0.3);
+        }
+
+        .custom-result {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .custom-result.show { display: block; }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        .sync-btn {
+            padding: 6px 12px;
+            background: rgba(255,215,0,0.2);
+            color: #ffd700;
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .sync-btn:hover {
+            background: rgba(255,215,0,0.3);
+        }
+
+        .sync-btn:active {
+            transform: scale(0.95);
+        }
+
+        .prices-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .prices-header h2 {
+            margin-bottom: 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 6px 6px 0 0;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .tab.active {
+            background: rgba(255,215,0,0.2);
+            color: #ffd700;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚔️ Hero Siege Market Calculator</h1>
+        <p class="subtitle">Material prices & crafting profit calculator | <a href="/control" style="color:#ffd700;">🎮 Control Panel</a></p>
+
+        <!-- Prices Section - Always Visible -->
+        <div class="card">
+            <div class="prices-header">
+                <h2>💰 Ore & Material Prices</h2>
+                <div class="toggle-container">
+                    <span>💾 Remember prices</span>
+                    <div class="toggle-switch" id="rememberToggle" onclick="toggleRemember()"></div>
+                    <button class="sync-btn" onclick="syncFromDB()" title="Load prices from database">🔄 Sync DB</button>
+                </div>
+            </div>
+            <div class="prices-section" id="pricesSection"></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('recipes')">📜 Predefined Recipes</button>
+            <button class="tab" onclick="switchTab('custom')">🔧 Custom Calculator</button>
+        </div>
+
+        <!-- Predefined Recipes -->
+        <div class="tab-content active" id="tab-recipes">
+            <div class="price-legend" style="font-size:0.8rem; color:#888; margin-bottom:10px; text-align:center;">
+                💰 = using buy price | ⛏️ = using craft cost (cheaper)
+            </div>
+            <div class="recipes-grid" id="recipesGrid"></div>
+        </div>
+
+        <!-- Custom Calculator -->
+        <div class="tab-content" id="tab-custom">
+            <div class="card">
+                <h2>🔨 Custom Item Calculator</h2>
+                <div class="custom-header">
+                    <input type="text" id="customName" placeholder="Item name" style="flex:1;">
+                </div>
+                <div class="custom-materials" id="customMaterials"></div>
+                <button class="btn btn-add" onclick="addCustomMat()">+ Add Material</button>
+                <button class="btn btn-calc" onclick="calcCustom()">Calculate</button>
+                <div class="custom-result" id="customResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ore data with costs
+        const ores = {
+            'Copper': { cost: 100, materials: ['Liquate', 'Copperstone', 'Snake Tooth', 'Bloodstone'] },
+            'Iron': { cost: 100, materials: ['Shadow Stone', 'Iron Opal', 'Lesser Impstone', 'Darkstone'] },
+            'Gold': { cost: 10, materials: ['Huge Spessarite', 'Greater Impstone', 'Ocean Agate', 'Twilight Citrine'] },
+            'Ruby': { cost: 25, materials: ['Ketamineral', 'Demon Tooth', 'Flaming Core', 'Cardinal Ruby'] },
+            'Jade': { cost: 250, materials: ['Hellstar', 'Inferno Stone', 'Satans Nail', 'Jadenium Powder'] },
+            'Tarethium': { cost: 500, materials: ['Storm Opal', 'Demon Soulstone', 'Dark Matter', 'Tarethium Core'] }
+        };
+
+        // Materials with buy prices and craft chances
+        const materials = {
+            // Copper
+            'Liquate': { price: 1, ore: 'Copper', chance: 0.20 },
+            'Copperstone': { price: 1, ore: 'Copper', chance: 0.12 },
+            'Snake Tooth': { price: 1, ore: 'Copper', chance: 0.05 },
+            'Bloodstone': { price: 5000, ore: 'Copper', chance: 0.01 },
+            // Iron
+            'Shadow Stone': { price: 1, ore: 'Iron', chance: 0.20 },
+            'Iron Opal': { price: 1, ore: 'Iron', chance: 0.12 },
+            'Lesser Impstone': { price: 1, ore: 'Iron', chance: 0.05 },
+            'Darkstone': { price: 8000, ore: 'Iron', chance: 0.01 },
+            // Gold
+            'Huge Spessarite': { price: 1, ore: 'Gold', chance: 0.20 },
+            'Greater Impstone': { price: 1, ore: 'Gold', chance: 0.12 },
+            'Ocean Agate': { price: 1, ore: 'Gold', chance: 0.05 },
+            'Twilight Citrine': { price: 500, ore: 'Gold', chance: 0.01 },
+            // Ruby
+            'Ketamineral': { price: 1, ore: 'Ruby', chance: 0.20 },
+            'Demon Tooth': { price: 1, ore: 'Ruby', chance: 0.12 },
+            'Flaming Core': { price: 1, ore: 'Ruby', chance: 0.05 },
+            'Cardinal Ruby': { price: 2000, ore: 'Ruby', chance: 0.01 },
+            // Jade
+            'Hellstar': { price: 100, ore: 'Jade', chance: 0.20 },
+            'Inferno Stone': { price: 1, ore: 'Jade', chance: 0.12 },
+            'Satans Nail': { price: 1, ore: 'Jade', chance: 0.05 },
+            'Jadenium Powder': { price: 20000, ore: 'Jade', chance: 0.01 },
+            // Tarethium
+            'Storm Opal': { price: 1, ore: 'Tarethium', chance: 0.20 },
+            'Demon Soulstone': { price: 10, ore: 'Tarethium', chance: 0.12 },
+            'Dark Matter': { price: 10000, ore: 'Tarethium', chance: 0.05 },
+            'Tarethium Core': { price: 2000, ore: 'Tarethium', chance: 0.01 },
+            // Base materials (buy only)
+            'Enchanted Sigil': { price: 475000, ore: null, chance: null },
+            'Angelic Key': { price: 1000, ore: null, chance: null },
+            'Prophets Wisdom': { price: 1000, ore: null, chance: null },
+            'Soul of Anguish': { price: 0, ore: null, chance: null },
+            'Soul of Despair': { price: 0, ore: null, chance: null },
+            'Soul of Corruption': { price: 0, ore: null, chance: null }
+        };
+
+        // Standalone materials for display
+        const baseMaterials = {
+            'Enchanted Sigil': { price: 475000 },
+            'Angelic Key': { price: 1000 },
+            'Prophets Wisdom': { price: 1000 },
+            'Soul of Anguish': { price: 0 },
+            'Soul of Despair': { price: 0 },
+            'Soul of Corruption': { price: 0 }
+        };
+
+        // Predefined recipes
+        const recipes = {
+            'Tinkerers Toolkit': {
+                sellPrice: 90000,
+                materials: [
+                    { name: 'Bloodstone', qty: 3 },
+                    { name: 'Darkstone', qty: 3 },
+                    { name: 'Twilight Citrine', qty: 3 },
+                    { name: 'Cardinal Ruby', qty: 3 },
+                    { name: 'Jadenium Powder', qty: 3 },
+                    { name: 'Dark Matter', qty: 1 }
+                ]
+            },
+            'Angelic Gem': {
+                sellPrice: 509030,
+                materials: [
+                    { name: 'Tarethium Core', qty: 2 },
+                    { name: 'Dark Matter', qty: 3 },
+                    { name: 'Demon Soulstone', qty: 3 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            'Chaos Gem': {
+                sellPrice: 575406,
+                materials: [
+                    { name: 'Jadenium Powder', qty: 4 },
+                    { name: 'Inferno Stone', qty: 5 },
+                    { name: 'Hellstar', qty: 4 },
+                    { name: 'Storm Opal', qty: 1 },
+                    { name: 'Dark Matter', qty: 2 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            'Moonstone Gem': {
+                sellPrice: 575009,
+                materials: [
+                    { name: 'Jadenium Powder', qty: 4 },
+                    { name: 'Satans Nail', qty: 4 },
+                    { name: 'Inferno Stone', qty: 3 },
+                    { name: 'Storm Opal', qty: 2 },
+                    { name: 'Dark Matter', qty: 2 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            'Elemental Gem': {
+                sellPrice: 575506,
+                materials: [
+                    { name: 'Jadenium Powder', qty: 5 },
+                    { name: 'Inferno Stone', qty: 3 },
+                    { name: 'Storm Opal', qty: 3 },
+                    { name: 'Hellstar', qty: 5 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            "Angel's Wisdom": {
+                sellPrice: 0,
+                materials: [
+                    { name: 'Angelic Key', qty: 1 },
+                    { name: 'Enchanted Sigil', qty: 2 },
+                    { name: 'Prophets Wisdom', qty: 1 }
+                ]
+            },
+            'Soul of Hatred': {
+                sellPrice: 0,
+                materials: [
+                    { name: 'Soul of Anguish', qty: 3 },
+                    { name: 'Soul of Despair', qty: 3 },
+                    { name: 'Soul of Corruption', qty: 3 }
+                ]
+            }
+        };
+
+        // Calculate craft cost from ore (expected cost)
+        function getCraftCost(matName) {
+            const mat = materials[matName];
+            // Base materials can't be crafted, return Infinity so buy is always chosen
+            if (!mat.ore || !mat.chance) return Infinity;
+            const ore = ores[mat.ore];
+            return ore.cost / mat.chance;
+        }
+
+        // Get best price (buy vs craft)
+        function getBestPrice(matName) {
+            const buyPrice = materials[matName].price;
+            const craftCost = getCraftCost(matName);
+            return Math.min(buyPrice, craftCost);
+        }
+
+        // Initialize price tables
+        function initPrices() {
+            const container = document.getElementById('pricesSection');
+            container.innerHTML = '';
+
+            Object.entries(ores).forEach(([oreName, oreData]) => {
+                const card = document.createElement('div');
+                card.className = 'ore-card';
+
+                let matsHtml = '';
+                oreData.materials.forEach(matName => {
+                    const mat = materials[matName];
+                    const chancePercent = Math.round(mat.chance * 100);
+                    const chanceClass = `chance-${chancePercent}`;
+                    const safeName = matName.replace(/'/g, "\\'");
+                    matsHtml += `
+                        <div class="mat-row">
+                            <div class="mat-info">
+                                <span class="mat-chance ${chanceClass}">${chancePercent}%</span>
+                                <span>${matName}</span>
+                            </div>
+                            <input type="number" class="mat-price-input" 
+                                   id="mat_${matName.replace(/\s/g, '_')}" 
+                                   value="${mat.price}"
+                                   onchange="updateMatPrice('${safeName}', this.value)">
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="ore-header">
+                        <span class="ore-name">⛏️ ${oreName}</span>
+                        <input type="number" class="ore-cost-input" 
+                               id="ore_${oreName}" 
+                               value="${oreData.cost}"
+                               onchange="updateOreCost('${oreName}', this.value)">
+                    </div>
+                    ${matsHtml}
+                `;
+                container.appendChild(card);
+            });
+
+            // Add base materials card
+            const baseCard = document.createElement('div');
+            baseCard.className = 'ore-card';
+            let baseMatsHtml = '';
+            Object.entries(baseMaterials).forEach(([matName, data]) => {
+                const safeName = matName.replace(/'/g, "\\'");
+                baseMatsHtml += `
+                    <div class="mat-row">
+                        <div class="mat-info">
+                            <span>${matName}</span>
+                        </div>
+                        <input type="number" class="mat-price-input" 
+                               id="mat_${matName.replace(/\s/g, '_')}" 
+                               value="${data.price}"
+                               onchange="updateMatPrice('${safeName}', this.value)">
+                    </div>
+                `;
+            });
+            baseCard.innerHTML = `
+                <div class="ore-header">
+                    <span class="ore-name">📦 Other</span>
+                </div>
+                ${baseMatsHtml}
+            `;
+            container.appendChild(baseCard);
+        }
+
+        function updateOreCost(oreName, value) {
+            ores[oreName].cost = parseFloat(value) || 0;
+            renderRecipes();
+        }
+
+        function updateMatPrice(matName, value) {
+            const newPrice = parseFloat(value) || 0;
+            materials[matName].price = newPrice;
+            // Also update baseMaterials if it exists there
+            if (baseMaterials[matName]) {
+                baseMaterials[matName].price = newPrice;
+            }
+            renderRecipes();
+        }
+
+        // Render recipes
+        function renderRecipes() {
+            const grid = document.getElementById('recipesGrid');
+            grid.innerHTML = '';
+
+            Object.entries(recipes).forEach(([name, recipe]) => {
+                // Initialize profit settings if not exists
+                if (!recipe.profitMode) recipe.profitMode = '10%';
+                if (!recipe.customProfit) recipe.customProfit = { value: 10000, type: 'fixed' };
+
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+
+                let matsHtml = '';
+                let totalBuyCost = 0;
+                let totalCraftCost = 0;
+                let hasBuyOnlyMats = false;
+
+                recipe.materials.forEach(mat => {
+                    const buyPrice = materials[mat.name].price;
+                    const craftCost = getCraftCost(mat.name);
+                    const bestPrice = Math.min(buyPrice, craftCost);
+                    const cost = bestPrice * mat.qty;
+                    const isCraft = craftCost < buyPrice;
+                    const isBuyOnly = craftCost === Infinity;
+                    const priceSource = isBuyOnly ? '' : (isCraft ? '⛏️' : '💰');
+                    
+                    totalBuyCost += buyPrice * mat.qty;
+                    if (craftCost === Infinity) {
+                        hasBuyOnlyMats = true;
+                        totalCraftCost += buyPrice * mat.qty;
+                    } else {
+                        totalCraftCost += craftCost * mat.qty;
+                    }
+
+                    matsHtml += `
+                        <div class="recipe-mat-row">
+                            <span class="recipe-mat-name">${mat.name}</span>
+                            <span class="recipe-mat-qty">×${mat.qty}</span>
+                            <span class="recipe-mat-cost">${priceSource}${fmt(cost)}</span>
+                        </div>
+                    `;
+                });
+
+                const bestTotal = Math.min(totalBuyCost, totalCraftCost);
+                const TAX_RATE = 0.89;
+                const minSellPrice = Math.ceil(bestTotal / TAX_RATE);
+
+                // Calculate sell price based on profit mode
+                let desiredProfit = 0;
+                switch(recipe.profitMode) {
+                    case '10%': desiredProfit = bestTotal * 0.10; break;
+                    case '20%': desiredProfit = bestTotal * 0.20; break;
+                    case '10k': desiredProfit = 10000; break;
+                    case '20k': desiredProfit = 20000; break;
+                    case '50k': desiredProfit = 50000; break;
+                    case 'custom':
+                        if (recipe.customProfit.type === 'percent') {
+                            desiredProfit = bestTotal * (recipe.customProfit.value / 100);
+                        } else {
+                            desiredProfit = recipe.customProfit.value;
+                        }
+                        break;
+                }
+
+                const sellPrice = Math.ceil((bestTotal + desiredProfit) / TAX_RATE);
+                const afterTax = sellPrice * TAX_RATE;
+                const actualProfit = afterTax - bestTotal;
+
+                const safeName = name.replace(/'/g, "\\'");
+                const isCustom = recipe.profitMode === 'custom';
+
+                card.innerHTML = `
+                    <div class="recipe-header">
+                        <span class="recipe-name">${name}</span>
+                    </div>
+                    <div class="recipe-materials">${matsHtml}</div>
+                    <div class="recipe-summary">
+                        <div class="summary-row">
+                            <span>Buy all cost:</span>
+                            <span>${fmt(totalBuyCost)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Craft all cost:</span>
+                            <span>${fmt(totalCraftCost)}</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Best cost:</span>
+                            <span>${fmt(bestTotal)}</span>
+                        </div>
+                    </div>
+                    <div class="profit-section">
+                        <span class="profit-label">📈 Target Profit:</span>
+                        <div class="profit-options">
+                            <button class="profit-btn ${recipe.profitMode === '10%' ? 'active' : ''}" onclick="setProfit('${safeName}', '10%')">10%</button>
+                            <button class="profit-btn ${recipe.profitMode === '20%' ? 'active' : ''}" onclick="setProfit('${safeName}', '20%')">20%</button>
+                            <button class="profit-btn ${recipe.profitMode === '10k' ? 'active' : ''}" onclick="setProfit('${safeName}', '10k')">10k</button>
+                            <button class="profit-btn ${recipe.profitMode === '20k' ? 'active' : ''}" onclick="setProfit('${safeName}', '20k')">20k</button>
+                            <button class="profit-btn ${recipe.profitMode === '50k' ? 'active' : ''}" onclick="setProfit('${safeName}', '50k')">50k</button>
+                            <button class="profit-btn ${recipe.profitMode === 'custom' ? 'active' : ''}" onclick="setProfit('${safeName}', 'custom')">Custom</button>
+                        </div>
+                        <div class="custom-profit-input ${isCustom ? 'visible' : ''}">
+                            <input type="number" value="${recipe.customProfit.value}" 
+                                   onchange="setCustomProfit('${safeName}', this.value)">
+                            <select onchange="setCustomProfitType('${safeName}', this.value)">
+                                <option value="fixed" ${recipe.customProfit.type === 'fixed' ? 'selected' : ''}>gold</option>
+                                <option value="percent" ${recipe.customProfit.type === 'percent' ? 'selected' : ''}>%</option>
+                            </select>
+                        </div>
+                        <div class="sell-info">
+                            <span class="sell-price-display">💰 Sell at: ${fmt(sellPrice)}</span>
+                            <span class="min-sell">Min: ${fmt(minSellPrice)}</span>
+                        </div>
+                    </div>
+                    <div class="tax-info">11% AH tax — You receive: ${fmt(afterTax)}</div>
+                    <div class="recipe-summary" style="margin-top:10px;">
+                        <div class="summary-row total">
+                            <span>Profit (after tax):</span>
+                            <span class="${actualProfit >= 0 ? 'positive' : 'negative'}">${actualProfit >= 0 ? '+' : ''}${fmt(Math.floor(actualProfit))}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setProfit(name, mode) {
+            recipes[name].profitMode = mode;
+            renderRecipes();
+            savePrices();
+        }
+
+        function setCustomProfit(name, value) {
+            recipes[name].customProfit.value = parseFloat(value) || 0;
+            renderRecipes();
+            savePrices();
+        }
+
+        function setCustomProfitType(name, type) {
+            recipes[name].customProfit.type = type;
+            renderRecipes();
+            savePrices();
+        }
+
+        function updateRecipeSell(name, value) {
+            recipes[name].sellPrice = parseFloat(value) || 0;
+            renderRecipes();
+        }
+
+        // Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        // Custom calculator
+        function addCustomMat() {
+            const container = document.getElementById('customMaterials');
+            const row = document.createElement('div');
+            row.className = 'custom-mat-row';
+
+            let options = '<option value="">Select...</option>';
+            Object.keys(ores).forEach(ore => {
+                options += `<optgroup label="${ore}">`;
+                ores[ore].materials.forEach(mat => {
+                    options += `<option value="${mat}">${mat}</option>`;
+                });
+                options += '</optgroup>';
+            });
+            // Add base materials
+            options += '<optgroup label="Other">';
+            Object.keys(baseMaterials).forEach(mat => {
+                options += `<option value="${mat}">${mat}</option>`;
+            });
+            options += '</optgroup>';
+
+            row.innerHTML = `
+                <select>${options}</select>
+                <input type="number" value="1" min="1">
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function calcCustom() {
+            const name = document.getElementById('customName').value || 'Custom Item';
+            const sellInput = document.getElementById('customSell');
+            const sellPrice = sellInput ? (parseFloat(sellInput.value) || 0) : 0;
+            const rows = document.querySelectorAll('.custom-mat-row');
+
+            let totalBuy = 0, totalCraft = 0;
+            let breakdown = '';
+
+            rows.forEach(row => {
+                const matName = row.querySelector('select').value;
+                const qty = parseInt(row.querySelector('input').value) || 0;
+                if (!matName || qty <= 0) return;
+
+                const buyPrice = materials[matName].price;
+                const craftCost = getCraftCost(matName);
+                const best = Math.min(buyPrice, craftCost);
+
+                totalBuy += buyPrice * qty;
+                // For buy-only materials, use buy price in craft total
+                if (craftCost === Infinity) {
+                    totalCraft += buyPrice * qty;
+                } else {
+                    totalCraft += craftCost * qty;
+                }
+
+                breakdown += `
+                    <div class="summary-row">
+                        <span>${matName} ×${qty}</span>
+                        <span>${fmt(best * qty)}</span>
+                    </div>
+                `;
+            });
+
+            const bestTotal = Math.min(totalBuy, totalCraft);
+            const TAX_RATE = 0.89;
+            const afterTax = sellPrice * TAX_RATE;
+            const profit = afterTax - bestTotal;
+            const minSellPrice = Math.ceil(bestTotal / TAX_RATE);
+
+            document.getElementById('customResult').innerHTML = `
+                <h3 style="color:#ffd700;margin-bottom:10px;">${name}</h3>
+                ${breakdown}
+                <div class="summary-row total">
+                    <span>Buy all:</span><span>${fmt(totalBuy)}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Craft all:</span><span>${fmt(totalCraft)}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Best total cost:</span><span>${fmt(bestTotal)}</span>
+                </div>
+                <div class="summary-row total" style="color:#ffd700;">
+                    <span>Min sell price (break even):</span><span>${fmt(minSellPrice)}</span>
+                </div>
+                <div class="recipe-sell" style="margin-top:15px;">
+                    <label>Sell Price:</label>
+                    <input type="number" id="customSell" value="${sellPrice}" onchange="calcCustom()">
+                </div>
+                <div class="tax-info">11% AH tax — You receive: ${fmt(afterTax)}</div>
+                <div class="summary-row total" style="margin-top:10px;">
+                    <span>Profit (after tax):</span>
+                    <span class="${profit >= 0 ? 'positive' : 'negative'}">${profit >= 0 ? '+' : ''}${fmt(profit)}</span>
+                </div>
+                <div class="verdict-mini ${profit > 0 ? 'worth' : 'not-worth'}">
+                    ${profit > 0 ? '✅ Worth crafting' : '❌ Not worth it'}
+                </div>
+            `;
+            document.getElementById('customResult').classList.add('show');
+        }
+
+        function fmt(n) {
+            return Math.round(n).toLocaleString();
+        }
+
+        // LocalStorage functions
+        let rememberPrices = localStorage.getItem('hs-remember-prices') === 'true';
+
+        function toggleRemember() {
+            rememberPrices = !rememberPrices;
+            localStorage.setItem('hs-remember-prices', rememberPrices);
+            updateToggleUI();
+            if (rememberPrices) {
+                savePrices();
+            } else {
+                localStorage.removeItem('hs-ore-prices');
+                localStorage.removeItem('hs-mat-prices');
+                localStorage.removeItem('hs-recipe-prices');
+            }
+        }
+
+        function updateToggleUI() {
+            const toggle = document.getElementById('rememberToggle');
+            if (rememberPrices) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        }
+
+        function savePrices() {
+            if (!rememberPrices) return;
+            
+            const orePrices = {};
+            Object.keys(ores).forEach(ore => {
+                orePrices[ore] = ores[ore].cost;
+            });
+            
+            const matPrices = {};
+            Object.keys(materials).forEach(mat => {
+                matPrices[mat] = materials[mat].price;
+            });
+
+            const recipeProfit = {};
+            Object.keys(recipes).forEach(name => {
+                recipeProfit[name] = {
+                    profitMode: recipes[name].profitMode || '10%',
+                    customProfit: recipes[name].customProfit || { value: 10000, type: 'fixed' }
+                };
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('hs-ore-prices', JSON.stringify(orePrices));
+            localStorage.setItem('hs-mat-prices', JSON.stringify(matPrices));
+            localStorage.setItem('hs-recipe-profit', JSON.stringify(recipeProfit));
+            
+            // Also save to database (async, fire and forget)
+            savePricesToDB();
+        }
+
+        async function savePricesToDB() {
+            try {
+                const oreData = {};
+                Object.keys(ores).forEach(ore => {
+                    oreData[ore] = ores[ore].cost;
+                });
+                
+                const matData = {};
+                Object.keys(materials).forEach(mat => {
+                    matData[mat] = {
+                        price: materials[mat].price,
+                        ore: materials[mat].ore,
+                        chance: materials[mat].chance
+                    };
+                });
+                
+                await fetch('/api/prices/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ores: oreData, materials: matData })
+                });
+            } catch (e) {
+                console.log('Error saving to database:', e);
+            }
+        }
+
+        async function loadPricesFromDB() {
+            try {
+                const response = await fetch('/api/prices/load');
+                const data = await response.json();
+                
+                if (data.ores) {
+                    Object.entries(data.ores).forEach(([name, cost]) => {
+                        if (ores[name]) ores[name].cost = cost;
+                    });
+                }
+                
+                if (data.materials) {
+                    Object.entries(data.materials).forEach(([name, matData]) => {
+                        if (materials[name]) {
+                            materials[name].price = matData.price;
+                        }
+                        if (baseMaterials[name]) {
+                            baseMaterials[name].price = matData.price;
+                        }
+                    });
+                }
+                
+                return true;
+            } catch (e) {
+                console.log('Error loading from database:', e);
+                return false;
+            }
+        }
+
+        function loadPrices() {
+            if (!rememberPrices) return;
+            
+            try {
+                const orePrices = JSON.parse(localStorage.getItem('hs-ore-prices'));
+                if (orePrices) {
+                    Object.keys(orePrices).forEach(ore => {
+                        if (ores[ore]) ores[ore].cost = orePrices[ore];
+                    });
+                }
+                
+                const matPrices = JSON.parse(localStorage.getItem('hs-mat-prices'));
+                if (matPrices) {
+                    Object.keys(matPrices).forEach(mat => {
+                        if (materials[mat]) materials[mat].price = matPrices[mat];
+                        if (baseMaterials[mat]) baseMaterials[mat].price = matPrices[mat];
+                    });
+                }
+
+                const recipeProfit = JSON.parse(localStorage.getItem('hs-recipe-profit'));
+                if (recipeProfit) {
+                    Object.keys(recipeProfit).forEach(name => {
+                        if (recipes[name]) {
+                            recipes[name].profitMode = recipeProfit[name].profitMode;
+                            recipes[name].customProfit = recipeProfit[name].customProfit;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.log('Error loading saved prices:', e);
+            }
+        }
+
+        async function syncFromDB() {
+            const btn = document.querySelector('.sync-btn');
+            btn.textContent = '⏳ Loading...';
+            
+            const success = await loadPricesFromDB();
+            
+            if (success) {
+                btn.textContent = '✅ Synced!';
+                initPrices();
+                renderRecipes();
+                setTimeout(() => {
+                    btn.textContent = '🔄 Sync DB';
+                }, 2000);
+            } else {
+                btn.textContent = '❌ Error';
+                setTimeout(() => {
+                    btn.textContent = '🔄 Sync DB';
+                }, 2000);
+            }
+        }
+
+        // Update functions to save after changes
+        const origUpdateOreCost = updateOreCost;
+        updateOreCost = function(oreName, value) {
+            origUpdateOreCost(oreName, value);
+            savePrices();
+        };
+
+        const origUpdateMatPrice = updateMatPrice;
+        updateMatPrice = function(matName, value) {
+            origUpdateMatPrice(matName, value);
+            savePrices();
+        };
+
+        const origUpdateRecipeSell = updateRecipeSell;
+        updateRecipeSell = function(name, value) {
+            origUpdateRecipeSell(name, value);
+            savePrices();
+        };
+
+        // Init
+        async function init() {
+            loadPrices();
+            updateToggleUI();
+            
+            // Try to load from database if no local prices saved
+            const hasLocalPrices = localStorage.getItem('hs-mat-prices');
+            if (!hasLocalPrices) {
+                console.log('No local prices, trying to load from database...');
+                await loadPricesFromDB();
+            }
+            
+            initPrices();
+            renderRecipes();
+            for (let i = 0; i < 6; i++) addCustomMat();
+        }
+        
+        init();
+    </script>
+</body>
+</html>

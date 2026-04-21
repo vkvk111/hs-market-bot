@@ -1,0 +1,123 @@
+{
+  "checkAllStaleOnStart": false,
+  "items": {
+    "Angel's Wisdom": {
+      "enabled": true,
+      "listingsCount": 5,
+      "quantityPerListing": 1,
+      "minPrice": 313371,
+      "maxPrice": 350000,
+      "position": [
+        1545,
+        821
+      ],
+      "autoPricing": true,
+      "minProfit": 10000,
+      "staleRelist": true,
+      "staleMinutes": 20,
+      "stock": 11
+    },
+    "Angelic Gem": {
+      "enabled": false,
+      "listingsCount": 4,
+      "quantityPerListing": 1,
+      "minPrice": 153576,
+      "maxPrice": 290000,
+      "position": [
+        1545,
+        881
+      ],
+      "minProfit": 5000,
+      "staleRelist": false,
+      "staleMinutes": 20,
+      "stock": 12
+    },
+    "Elemental Gem": {
+      "enabled": true,
+      "listingsCount": 3,
+      "quantityPerListing": 1,
+      "minPrice": 231456,
+      "maxPrice": 350000,
+      "position": [
+        1545,
+        940
+      ],
+      "minProfit": 5000,
+      "staleRelist": true,
+      "staleMinutes": 20,
+      "stock": 9
+    },
+    "Tinkerers Toolkit": {
+      "enabled": false,
+      "listingsCount": 6,
+      "quantityPerListing": 10,
+      "minPrice": 165000,
+      "maxPrice": 0,
+      "position": [
+        1545,
+        1000
+      ],
+      "autoPricing": false,
+      "stock": 120,
+      "staleRelist": false
+    },
+    "Moonstone Gem": {
+      "enabled": true,
+      "listingsCount": 3,
+      "quantityPerListing": 1,
+      "minPrice": 228971,
+      "position": [
+        1545,
+        1060
+      ],
+      "autoPricing": true,
+      "minProfit": 5000,
+      "staleRelist": true,
+      "staleMinutes": 20,
+      "stock": 9
+    },
+    "Key of Infernal Terror": {
+      "enabled": false,
+      "listingsCount": 2,
+      "quantityPerListing": 2,
+      "minPrice": 100000,
+      "position": [
+        1545,
+        1120
+      ],
+      "autoPricing": false,
+      "minProfit": 5000,
+      "staleRelist": false,
+      "stock": 28
+    },
+    "Chaos Gem": {
+      "enabled": true,
+      "listingsCount": 3,
+      "quantityPerListing": 1,
+      "minPrice": 245000,
+      "position": [
+        1585,
+        821
+      ],
+      "autoPricing": false,
+      "minProfit": 0,
+      "staleRelist": false,
+      "stock": 9
+    },
+    "Soul of Hatred": {
+      "enabled": false,
+      "listingsCount": 3,
+      "quantityPerListing": 1,
+      "minPrice": 0,
+      "position": [
+        1585,
+        881
+      ],
+      "autoPricing": false,
+      "minProfit": 0,
+      "staleRelist": false,
+      "stock": 0
+    }
+  },
+  "soldCounts": {}
+}

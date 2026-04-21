@@ -1,0 +1,18 @@
+# Hero Siege Market Bot - Python Client Dependencies
+
+# Screen capture
+mss>=9.0.1
+
+# Image matching / template matching
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# OCR for price reading
+pytesseract>=0.3.10
+Pillow>=10.0.0
+
+# Hotkey detection
+keyboard>=0.13.5
+
+# Mouse position helper (optional, for calibration)
+pyautogui>=0.9.54

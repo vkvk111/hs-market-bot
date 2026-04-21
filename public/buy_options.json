@@ -1,0 +1,112 @@
+{
+  "autoBuyEnabled": true,
+  "items": {
+    "jadenium powder": {
+      "autoBuy": true,
+      "unitsNeeded": 200,
+      "maxThreshold": 22000,
+      "autoPricing": false,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5,
+      "totalBought": 21,
+      "maxPerCycle": 5
+    },
+    "prophet's wisdom": {
+      "autoBuy": true,
+      "unitsNeeded": 30,
+      "maxThreshold": 0,
+      "autoPricing": true,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5,
+      "totalBought": 0
+    },
+    "darkstone": {
+      "autoBuy": true,
+      "unitsNeeded": 100,
+      "maxThreshold": 9000,
+      "autoPricing": true,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5,
+      "totalBought": 4
+    },
+    "dark matter": {
+      "autoBuy": true,
+      "unitsNeeded": 100,
+      "maxThreshold": 10000,
+      "autoPricing": true,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5,
+      "totalBought": 64
+    },
+    "angelic key": {
+      "autoBuy": true,
+      "maxPerSession": 0,
+      "unitsNeeded": 30,
+      "maxThreshold": 49000,
+      "autoPricing": true,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5,
+      "totalBought": 24
+    },
+    "elemental gem": {
+      "autoBuy": true
+    },
+    "angelic gem": {
+      "autoBuy": true
+    },
+    "moonstone gem": {
+      "autoBuy": true,
+      "autoPricing": false,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5
+    },
+    "angel's wisdom": {
+      "autoBuy": true
+    },
+    "tinkerer's toolkit": {
+      "autoBuy": true
+    },
+    "soul of anguish": {
+      "autoBuy": true,
+      "maxThreshold": 70000,
+      "unitsNeeded": 3,
+      "maxPerSession": 0,
+      "autoPricing": false,
+      "cyclesToIncrease": 3,
+      "cyclesToDecrease": 3,
+      "increasePercent": 5,
+      "decreasePercent": 5,
+      "totalBought": 5
+    },
+    "soul of despair": {
+      "autoBuy": true,
+      "maxThreshold": 85000,
+      "unitsNeeded": 3,
+      "totalBought": 3
+    },
+    "soul of corruption": {
+      "autoBuy": true,
+      "maxThreshold": 165000,
+      "unitsNeeded": 3,
+      "totalBought": 4
+    }
+  },
+  "buyUnderAvgSessionCount": 0,
+  "autoPricingEnabled": true,
+  "buyUnderAvgEnabled": true,
+  "buyUnderAvgPercent": 10,
+  "buyUnderAvgMaxPerCycle": 1,
+  "buyUnderAvgMaxPerSession": 0
+}

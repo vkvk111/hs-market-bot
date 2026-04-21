@@ -1,0 +1,2754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HS Market Bot - Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card h2 {
+            color: #ffd700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card h2:hover {
+            opacity: 0.8;
+        }
+
+        .card h2 .collapse-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .card.collapsed h2 .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .card-content {
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card.collapsed .card-content {
+            max-height: 0 !important;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Status Section */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff4757;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected { background: #2ed573; }
+        .status-dot.running { background: #2ed573; animation: pulse 1s infinite; }
+        .status-dot.paused { background: #ffa502; animation: none; }
+        .status-dot.stopped { background: #ff4757; animation: none; }
+        .status-dot.connecting { background: #1e90ff; animation: pulse 0.5s infinite; }
+        .status-dot.error { background: #ff4757; animation: pulse 0.3s infinite; }
+        .status-dot.disconnected { background: #666; animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-start {
+            background: #2ed573;
+            color: #1a1a2e;
+        }
+
+        .btn-start:hover:not(:disabled) {
+            background: #26b863;
+        }
+
+        .btn-pause {
+            background: #ffa502;
+            color: #1a1a2e;
+        }
+
+        .btn-pause:hover:not(:disabled) {
+            background: #e69500;
+        }
+
+        .btn-stop {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        .btn-stop:hover:not(:disabled) {
+            background: #e8414e;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        /* Price Feed */
+        .price-feed {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .config-item:hover {
+            background: rgba(0,0,0,0.4);
+        }
+
+        .config-item.disabled {
+            opacity: 0.5;
+        }
+
+        .config-item.sell-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 6px;
+        }
+
+        .sell-item-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sell-item-row.secondary {
+            padding-left: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 6px;
+        }
+
+        .config-item.hidden-item {
+            background: rgba(100,100,100,0.1);
+            border: 1px dashed #444;
+        }
+
+        .config-item.out-of-stock {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid #ff4757;
+            opacity: 0.7;
+        }
+
+        .config-item-name {
+            flex: 1;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .config-item-threshold {
+            width: 100px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #1a1a2e;
+            color: #ffd700;
+            font-weight: bold;
+            text-align: right;
+            font-family: 'Consolas', monospace;
+        }
+
+        .config-item-threshold:focus {
+            border-color: #ffd700;
+            outline: none;
+        }
+
+        .toggle-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.enable-btn {
+            background: #2a2a4a;
+            color: #888;
+        }
+
+        .toggle-btn.enable-btn.active {
+            background: #2d5a27;
+            color: #4ade80;
+        }
+
+        .toggle-btn.hide-btn {
+            background: #2a2a4a;
+            color: #888;
+        }
+
+        .toggle-btn.hide-btn.active {
+            background: #5a4a27;
+            color: #fbbf24;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .price-item-name {
+            font-weight: 500;
+        }
+
+        .price-item-value {
+            color: #ffd700;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+        }
+
+        .price-item-time {
+            color: #666;
+            font-size: 0.75rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+
+        /* Session Stats */
+        .session-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .session-stat {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .session-stat.bought {
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .session-stat.sold {
+            border-left: 3px solid #4ade80;
+        }
+
+        .session-stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .session-stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .session-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .session-list h3 {
+            color: #888;
+            font-size: 0.9rem;
+            margin: 15px 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .session-item.bought {
+            border-left: 2px solid #ff6b6b;
+        }
+
+        .session-item.sold {
+            border-left: 2px solid #4ade80;
+        }
+
+        .session-item-name {
+            flex: 1;
+        }
+
+        .session-item-qty {
+            color: #888;
+            margin-right: 15px;
+        }
+
+        .session-item-price {
+            color: #ffd700;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Connection Info */
+        .connection-info {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+        }
+
+        .connection-info span {
+            color: #ffd700;
+        }
+
+        /* Hotkey Info */
+        .hotkey-info {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .hotkey-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .hotkey-key {
+            background: rgba(255,255,255,0.1);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Navigation */
+        .nav-link {
+            display: inline-block;
+            color: #ffd700;
+            text-decoration: none;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Drag and drop styles */
+        .card[draggable="true"] {
+            cursor: grab;
+        }
+
+        .card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .card.drag-over {
+            border: 2px dashed #ffd700;
+            background: rgba(255,215,0,0.1);
+        }
+
+        .card h2 .drag-handle {
+            cursor: grab;
+            opacity: 0.5;
+            margin-right: 8px;
+        }
+
+        .card h2 .drag-handle:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Hero Siege Market Bot</h1>
+            <p class="subtitle">Control Panel</p>
+        </header>
+
+        <div class="grid">
+            <!-- Status Card -->
+            <div class="card" id="cardStatus" draggable="true">
+                <h2 onclick="toggleCard('cardStatus')"><span class="drag-handle">⋮⋮</span>📡 Client Status <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                
+                <div class="status-indicator">
+                    <div class="status-dot disconnected" id="statusDot"></div>
+                    <span class="status-text" id="statusText">Disconnected</span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-start" id="btnStart" onclick="sendCommand('start')">
+                        ▶️ Start
+                    </button>
+                    <button class="btn btn-pause" id="btnPause" onclick="sendCommand('pause')">
+                        ⏸️ Pause
+                    </button>
+                    <button class="btn btn-stop" id="btnStop" onclick="sendCommand('stop')">
+                        ⏹️ Stop
+                    </button>
+                </div>
+
+                <div class="hotkey-info">
+                    <div class="hotkey-row">
+                        <span>Pause/Resume</span>
+                        <span class="hotkey-key">F9</span>
+                    </div>
+                    <div class="hotkey-row">
+                        <span>Stop</span>
+                        <span class="hotkey-key">F10</span>
+                    </div>
+                </div>
+
+                <div class="connection-info">
+                    WebSocket: <span id="wsStatus">Connecting...</span>
+                </div>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card" id="cardStats" draggable="true">
+                <h2 onclick="toggleCard('cardStats')"><span class="drag-handle">⋮⋮</span>📊 Statistics <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statUptime">0:00</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statRead">0</div>
+                        <div class="stat-label">Prices Read</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statSent">0</div>
+                        <div class="stat-label">Prices Sent</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statErrors">0</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Session Stats Card -->
+            <div class="card" id="cardSession" style="grid-column: span 1;" draggable="true">
+                <h2 onclick="toggleCard('cardSession')"><span class="drag-handle">⋮⋮</span>📈 Session Stats <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div class="session-stats-grid">
+                    <div class="session-stat bought">
+                        <div class="session-stat-value" id="sessionBoughtCount">0</div>
+                        <div class="session-stat-label">Items Bought</div>
+                    </div>
+                    <div class="session-stat bought">
+                        <div class="session-stat-value" id="sessionBoughtTotal">0</div>
+                        <div class="session-stat-label">Gold Spent</div>
+                    </div>
+                    <div class="session-stat sold">
+                        <div class="session-stat-value" id="sessionSoldCount">0</div>
+                        <div class="session-stat-label">Items Sold</div>
+                    </div>
+                    <div class="session-stat sold">
+                        <div class="session-stat-value" id="sessionSoldTotal">0</div>
+                        <div class="session-stat-label">Gold Earned</div>
+                    </div>
+                </div>
+                <div class="session-stats-grid" style="margin-bottom: 15px;">
+                    <div class="session-stat" style="grid-column: span 2; border-left: 3px solid #ffd700;">
+                        <div class="session-stat-value" id="sessionListingsCount">0</div>
+                        <div class="session-stat-label">Items Listed</div>
+                    </div>
+                    <div class="session-stat" style="grid-column: span 2; border-left: 3px solid #ffd700;">
+                        <div class="session-stat-value" id="sessionListingsValue">0</div>
+                        <div class="session-stat-label">Listing Value</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 8px;">📦 Stock Status</h3>
+                    <div id="stockStatusList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span style="color: #888; font-size: 0.85rem;">No sell items configured</span>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 8px;">🛒 Bought This Session</h3>
+                    <div id="boughtItemsSummary" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span style="color: #888; font-size: 0.85rem;">No items bought yet</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <h3>🛒 Recent Buys</h3>
+                        <div class="session-list" id="sessionBoughtList">
+                            <div class="empty-state" style="padding: 15px;">No purchases yet</div>
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <h3>💰 Recent Sales</h3>
+                        <div class="session-list" id="sessionSoldList">
+                            <div class="empty-state" style="padding: 15px;">No sales yet</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <span id="sessionUptime" style="color: #888; font-size: 0.9rem;">Session: 0:00</span>
+                    <button class="btn btn-stop" onclick="resetSessionStats()" style="padding: 6px 12px;">🔄 Reset Stats</button>
+                </div>
+                </div>
+            </div>
+
+            <!-- Price Feed Card -->
+            <div class="card" id="cardPriceFeed" style="grid-column: span 2;" draggable="true">
+                <h2 onclick="toggleCard('cardPriceFeed')"><span class="drag-handle">⋮⋮</span>💰 Live Price Feed <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                
+                <div class="price-feed" id="priceFeed">
+                    <div class="empty-state">
+                        Waiting for price data...
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Market Research Card -->
+            <div class="card" id="cardBuyConfig" style="grid-column: span 2;" draggable="true">
+                <h2 onclick="toggleCard('cardBuyConfig')"><span class="drag-handle">⋮⋮</span>📊 Market Research <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="itemSearch" placeholder="Search items..." 
+                        style="flex: 1; min-width: 150px; padding: 8px 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a2e; color: #fff;">
+                    <label style="display: flex; align-items: center; gap: 5px; color: #888; cursor: pointer;">
+                        <input type="checkbox" id="showHidden" onchange="renderBuyConfig()">
+                        Show hidden
+                    </label>
+                    <button class="btn btn-pause" onclick="toggleAddItem()" style="padding: 6px 12px;">+ Add Item</button>
+                </div>
+                <div id="addItemRow" style="display: none; margin-bottom: 15px; padding: 10px; background: #1a1a2e; border-radius: 8px;">
+                    <input type="text" id="newItemName" placeholder="Item name..." 
+                        style="padding: 8px; border-radius: 6px; border: 1px solid #333; background: #252540; color: #fff; width: 200px;">
+                    <button class="btn btn-start" onclick="addNewItem()" style="padding: 6px 12px; margin-left: 10px;">Add</button>
+                </div>
+                <div id="buyConfigList" style="max-height: 400px; overflow-y: auto;"></div>
+                <div style="margin-top: 15px; color: #888; font-size: 0.9rem;">
+                    <span id="configMsg" style="color: #4ade80;">✓ Auto-saves</span>
+                </div>
+                </div>
+            </div>
+
+            <!-- Buy Options Card -->
+            <div class="card" id="cardBuyOptions" style="grid-column: span 1;" draggable="true">
+                <h2 onclick="toggleCard('cardBuyOptions')"><span class="drag-handle">⋮⋮</span>🛒 Buy Options <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 5px; color: #888; font-size: 0.85rem;">
+                        <input type="checkbox" id="autoBuyMasterSwitch" onchange="toggleAutoBuyMaster()" style="width: 16px; height: 16px;">
+                        <span id="autoBuyMasterLabel">Auto-Buy OFF</span>
+                    </label>
+                </div>
+                <div id="buyUnderAvgSettings" style="margin-bottom: 10px; padding: 10px; background: #1a1a2e; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="buyUnderAvgEnabled" onchange="toggleBuyUnderAvg()" style="width: 14px; height: 14px;">
+                        <span id="buyUnderAvgLabel" style="color: #888; font-size: 0.85rem; font-weight: bold;">📉 Buy Under Avg</span>
+                    </label>
+                    <label style="color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 3px;">
+                        Buy if
+                        <input type="number" id="buyUnderAvgPercent" value="10" min="1" max="50" 
+                            style="width: 35px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalBuyUnderAvg()">% under 1h avg
+                    </label>
+                    <label style="color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 3px;">
+                        Max
+                        <input type="number" id="buyUnderAvgMaxPerCycle" value="1" min="0" max="99" 
+                            style="width: 30px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalBuyUnderAvg()">/cycle
+                    </label>
+                    <label style="color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 3px;">
+                        <input type="number" id="buyUnderAvgMaxPerSession" value="0" min="0" max="999" 
+                            style="width: 35px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalBuyUnderAvg()">/session
+                        <span style="font-size: 0.65rem;">(0=∞)</span>
+                    </label>
+                    <span id="buyUnderAvgCount" style="font-size: 0.7rem; color: #4ade80; padding: 2px 6px; background: #252540; border-radius: 4px;">0/∞</span>
+                    <span id="avgPricesStatus" style="color: #888; font-size: 0.7rem; margin-left: auto;">Loading...</span>
+                </div>
+                <div id="autoPricingSettings" style="margin-bottom: 15px; padding: 10px; background: #1a1a2e; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                        <input type="checkbox" id="autoPricingEnabled" onchange="toggleAutoPricing()" style="width: 14px; height: 14px;">
+                        <span id="autoPricingLabel" style="color: #888; font-size: 0.85rem; font-weight: bold;">📈 Auto-Pricing</span>
+                    </label>
+                    <label style="color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 3px;">
+                        ↑ after
+                        <input type="number" id="autoPricingCyclesToIncrease" value="3" min="1" max="20" 
+                            style="width: 35px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalAutoPricing()">
+                        cycles by
+                        <input type="number" id="autoPricingIncreasePercent" value="5" min="1" max="50" 
+                            style="width: 35px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #4ade80; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalAutoPricing()">%
+                    </label>
+                    <label style="color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 3px;">
+                        ↓ after
+                        <input type="number" id="autoPricingCyclesToDecrease" value="3" min="1" max="20" 
+                            style="width: 35px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalAutoPricing()">
+                        buys by
+                        <input type="number" id="autoPricingDecreasePercent" value="5" min="1" max="50" 
+                            style="width: 35px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ff4757; text-align: center; font-size: 0.75rem;"
+                            onchange="updateGlobalAutoPricing()">%
+                    </label>
+                </div>
+                <div id="buyOptionsList" style="max-height: 400px; overflow-y: auto;"></div>
+                <div style="margin-top: 15px; color: #888; font-size: 0.9rem;">
+                    <span id="buyOptionsMsg" style="color: #4ade80;">✓ Auto-saves</span>
+                </div>
+                </div>
+            </div>
+
+            <!-- My Listings Card -->
+            <div class="card" id="cardListings" style="grid-column: span 2;" draggable="true">
+                <h2 onclick="toggleCard('cardListings')"><span class="drag-handle">⋮⋮</span>📦 My Listings <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div id="listingsTotal" style="font-size: 2.5rem; font-weight: bold; color: #ffd700; margin: 10px 0;">
+                    0 Items Listed
+                </div>
+                <div style="margin-bottom: 15px; color: #888; font-size: 0.9rem;">
+                    <span>✅ Auto-scanned each cycle</span>
+                    <button class="btn btn-pause" onclick="clearMyListings()" style="margin-left:15px;">🗑️ Clear</button>
+                </div>
+                <div id="myListings" class="price-feed">
+                    <div class="empty-state">Waiting for bot to scan listings...</div>
+                </div>
+                <div id="listingsStats" style="margin-top:10px; color:#888; font-size:0.9rem;"></div>
+                </div>
+            </div>
+
+            <!-- Crafting Profit Card -->
+            <div class="card" id="cardCraftProfit" style="grid-column: span 1;" draggable="true">
+                <h2 onclick="toggleCard('cardCraftProfit')"><span class="drag-handle">⋮⋮</span>⚒️ Crafting Profit <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #888; font-size: 0.9rem;">Shows profit for craftable items (materials = 1h avg)</span>
+                    <label style="display: flex; align-items: center; gap: 5px; color: #888; cursor: pointer; font-size: 0.85rem;">
+                        <span>Output price:</span>
+                        <select id="outputPriceSource" onchange="renderCraftingProfit()" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #444; background: #1a1a2e; color: #ffd700; font-size: 0.85rem;">
+                            <option value="avg">1h Avg</option>
+                            <option value="latest">Latest</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="craftProfitList" class="price-feed">
+                    <div class="empty-state">Loading recipes and prices...</div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Material Prices Maintenance Card -->
+            <div class="card" id="cardMaterialPrices" style="grid-column: span 2;" draggable="true">
+                <h2 onclick="toggleCard('cardMaterialPrices')"><span class="drag-handle">⋮⋮</span>💎 Material Prices <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #888; font-size: 0.9rem;">Manual price maintenance for crafting calculations</span>
+                    <button class="btn btn-pause" onclick="fetchMaterialPrices()" id="btnFetchPrices">🔄 Fetch Prices</button>
+                </div>
+                <div id="materialPricesList" class="price-feed" style="max-height: 400px;">
+                    <div class="empty-state">Click "Fetch Prices" to load material prices</div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Sell Settings Card -->
+            <div class="card" id="cardSellConfig" style="grid-column: span 1;" draggable="true">
+                <h2 onclick="toggleCard('cardSellConfig')"><span class="drag-handle">⋮⋮</span>💰 Sell Settings <span class="collapse-icon">▼</span></h2>
+                <div class="card-content">
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <span style="color: #888; font-size: 0.9rem;">Configure items to auto-sell with price ranges</span>
+                    <button class="btn btn-start" onclick="autoCalculateMinPrices()" style="padding: 6px 12px;" title="Calculate min prices from material costs (11% tax + item profit + 5k base)">🧮 Auto Min</button>
+                    <label style="display: flex; align-items: center; gap: 5px; color: #888; font-size: 0.85rem; margin-left: 10px;">
+                        <input type="checkbox" id="checkAllStaleOnStart" onchange="toggleCheckAllStaleOnStart()" style="width: 16px; height: 16px;">
+                        Check all stale on start
+                    </label>
+                    <button class="btn btn-pause" onclick="toggleAddSellItem()" style="padding: 6px 12px; margin-left: auto;">+ Add Item</button>
+                </div>
+                <div id="addSellItemRow" style="display: none; margin-bottom: 15px; padding: 10px; background: #1a1a2e; border-radius: 8px; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <input type="text" id="newSellItemName" placeholder="Item name..." 
+                        style="padding: 8px; border-radius: 6px; border: 1px solid #333; background: #252540; color: #fff; width: 150px;">
+                    <label style="color: #888; font-size: 0.8rem;">Qty/List:</label>
+                    <input type="number" id="newSellItemQtyPerListing" placeholder="1" value="1" min="1"
+                        style="padding: 8px; border-radius: 6px; border: 1px solid #333; background: #252540; color: #fff; width: 50px;">
+                    <input type="number" id="newSellItemPosX" placeholder="X pos" 
+                        style="padding: 8px; border-radius: 6px; border: 1px solid #333; background: #252540; color: #fff; width: 70px;">
+                    <input type="number" id="newSellItemPosY" placeholder="Y pos"
+                        style="padding: 8px; border-radius: 6px; border: 1px solid #333; background: #252540; color: #fff; width: 70px;">
+                    <button class="btn btn-start" onclick="addNewSellItem()" style="padding: 6px 12px;">Add</button>
+                </div>
+                <div id="sellConfigList" style="max-height: 400px; overflow-y: auto;"></div>
+                <div style="margin-top: 15px; color: #888; font-size: 0.9rem;">
+                    <span id="sellConfigMsg" style="color: #4ade80;">✓ Auto-saves</span>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <a href="/" class="nav-link">← Back to Calculator</a>
+    </div>
+
+    <script>
+        let ws = null;
+        let clientState = 'disconnected';
+        let prices = [];
+        const MAX_PRICES = 50;
+
+        function connect() {
+            const wsUrl = `ws://${window.location.host}/ws`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                document.getElementById('wsStatus').textContent = 'Connected';
+                document.getElementById('wsStatus').style.color = '#2ed573';
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                document.getElementById('wsStatus').textContent = 'Disconnected';
+                document.getElementById('wsStatus').style.color = '#ff4757';
+                updateStatus('disconnected');
+                
+                // Reconnect after 3 seconds
+                setTimeout(connect, 3000);
+            };
+
+            ws.onerror = (err) => {
+                console.error('WebSocket error:', err);
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    handleMessage(message);
+                } catch (e) {
+                    console.error('Invalid message:', e);
+                }
+            };
+        }
+
+        function handleMessage(message) {
+            switch (message.type) {
+                case 'init':
+                    // Initial state from server
+                    if (message.state) {
+                        updateStatus(message.state.state);
+                        updateStats(message.state.stats);
+                    }
+                    if (message.recentPrices) {
+                        prices = message.recentPrices;
+                        renderPrices();
+                    }
+                    break;
+
+                case 'status':
+                    updateStatus(message.state);
+                    updateStats(message.stats);
+                    break;
+
+                case 'price_update':
+                    addPrice(message.data);
+                    break;
+
+                case 'client_connected':
+                    updateStatus('connected');
+                    break;
+
+                case 'client_disconnected':
+                    updateStatus('disconnected');
+                    break;
+
+                case 'error':
+                    console.error('Server error:', message.message);
+                    break;
+            }
+        }
+
+        function updateStatus(state) {
+            clientState = state;
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+
+            // Remove all state classes
+            dot.className = 'status-dot';
+            
+            // Add current state class
+            dot.classList.add(state);
+            text.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+
+            // Update button states
+            const btnStart = document.getElementById('btnStart');
+            const btnPause = document.getElementById('btnPause');
+            const btnStop = document.getElementById('btnStop');
+
+            btnStart.disabled = state === 'running' || state === 'disconnected';
+            btnPause.disabled = state !== 'running' && state !== 'paused';
+            btnStop.disabled = state === 'stopped' || state === 'disconnected';
+
+            // Update pause button text
+            if (state === 'paused') {
+                btnPause.innerHTML = '▶️ Resume';
+                btnPause.onclick = () => sendCommand('resume');
+            } else {
+                btnPause.innerHTML = '⏸️ Pause';
+                btnPause.onclick = () => sendCommand('pause');
+            }
+        }
+
+        function updateStats(stats) {
+            if (!stats) return;
+
+            // Uptime
+            const uptime = stats.uptime || 0;
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            const seconds = Math.floor(uptime % 60);
+            
+            let uptimeStr = '';
+            if (hours > 0) {
+                uptimeStr = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                uptimeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            document.getElementById('statUptime').textContent = uptimeStr;
+
+            document.getElementById('statRead').textContent = stats.prices_read || 0;
+            document.getElementById('statSent').textContent = stats.prices_sent || 0;
+            document.getElementById('statErrors').textContent = stats.errors || 0;
+        }
+
+        function addPrice(data) {
+            prices.unshift(data);
+            if (prices.length > MAX_PRICES) {
+                prices.pop();
+            }
+            renderPrices();
+        }
+
+        function renderPrices() {
+            const feed = document.getElementById('priceFeed');
+            
+            if (prices.length === 0) {
+                feed.innerHTML = '<div class="empty-state">Waiting for price data...</div>';
+                return;
+            }
+
+            feed.innerHTML = prices.map(p => {
+                const time = new Date(p.timestamp * 1000 || p.received_at);
+                const timeStr = time.toLocaleTimeString();
+                const priceStr = p.price.toLocaleString();
+                
+                return `
+                    <div class="price-item">
+                        <div>
+                            <div class="price-item-name">${p.item_name}</div>
+                            <div class="price-item-time">${timeStr}</div>
+                        </div>
+                        <div class="price-item-value">${priceStr}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function sendCommand(command) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'command',
+                    command: command
+                }));
+                console.log('Sent command:', command);
+            } else {
+                console.error('WebSocket not connected');
+            }
+        }
+
+        // Refresh stats periodically
+        setInterval(() => {
+            if (clientState === 'running' || clientState === 'paused') {
+                sendCommand('status');
+            }
+        }, 1000);
+
+        // Connect on load
+        connect();
+
+        // --- Market Research Logic ---
+        // --- Buy Config Logic ---
+        let buyConfig = { items: {} };
+
+        async function fetchBuyConfig() {
+            try {
+                const res = await fetch('/api/buy_config?_=' + Date.now());
+                buyConfig = await res.json();
+                renderBuyConfig();
+            } catch (e) {
+                document.getElementById('buyConfigList').innerHTML = '<div style="color:#ff4757">Failed to load config</div>';
+            }
+        }
+
+        function renderBuyConfig() {
+            const list = document.getElementById('buyConfigList');
+            const searchTerm = document.getElementById('itemSearch').value.toLowerCase();
+            const showHidden = document.getElementById('showHidden').checked;
+            
+            const items = Object.entries(buyConfig.items || {})
+                .filter(([name, item]) => {
+                    if (!showHidden && item.hidden) return false;
+                    if (searchTerm && !name.includes(searchTerm)) return false;
+                    return true;
+                })
+                .sort((a, b) => {
+                    // Enabled first, then by name
+                    if (a[1].enabled !== b[1].enabled) return b[1].enabled ? 1 : -1;
+                    return a[0].localeCompare(b[0]);
+                });
+
+            if (items.length === 0) {
+                list.innerHTML = '<div class="empty-state">No items match your search</div>';
+                return;
+            }
+
+            list.innerHTML = items.map(([name, item]) => {
+                const safeName = name.replace(/'/g, "\\'");
+                return `
+                <div class="config-item ${item.enabled ? '' : 'disabled'} ${item.hidden ? 'hidden-item' : ''}" data-name="${name}">
+                    <button class="toggle-btn enable-btn ${item.enabled ? 'active' : ''}" 
+                        onclick="toggleItemEnabled('${safeName}')" title="${item.enabled ? 'Disable' : 'Enable'}">
+                        ${item.enabled ? '✓' : '○'}
+                    </button>
+                    <span class="config-item-name">${name}</span>
+                    <button class="toggle-btn hide-btn ${item.hidden ? 'active' : ''}"
+                        onclick="toggleItemHidden('${safeName}')" title="${item.hidden ? 'Unhide' : 'Hide'}">
+                        ${item.hidden ? '👁' : '👁‍🗨'}
+                    </button>
+                </div>
+            `}).join('');
+            
+            // Re-render buy options since they depend on enabled items
+            if (typeof renderBuyOptions === 'function') renderBuyOptions();
+        }
+
+        function toggleItemEnabled(name) {
+            if (buyConfig.items[name]) {
+                buyConfig.items[name].enabled = !buyConfig.items[name].enabled;
+                renderBuyConfig();
+                debouncedSave();
+            }
+        }
+
+        function toggleItemHidden(name) {
+            if (buyConfig.items[name]) {
+                buyConfig.items[name].hidden = !buyConfig.items[name].hidden;
+                renderBuyConfig();
+                debouncedSave();
+            }
+        }
+
+        function updateThreshold(name, value) {
+            if (buyConfig.items[name]) {
+                buyConfig.items[name].threshold = parseInt(value) || 0;
+                debouncedSave();
+            }
+        }
+
+        // Debounced auto-save (saves 500ms after last change)
+        let saveTimeout = null;
+        function debouncedSave() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveBuyConfig();
+            }, 500);
+        }
+
+        function toggleAddItem() {
+            const row = document.getElementById('addItemRow');
+            row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+            if (row.style.display !== 'none') {
+                document.getElementById('newItemName').focus();
+            }
+        }
+
+        async function addNewItem() {
+            const name = document.getElementById('newItemName').value.trim();
+            if (!name) return;
+            
+            try {
+                const res = await fetch('/api/buy_config/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    buyConfig = data.config;
+                    document.getElementById('newItemName').value = '';
+                    document.getElementById('addItemRow').style.display = 'none';
+                    renderBuyConfig();
+                }
+            } catch (e) {
+                console.error('Failed to add item:', e);
+            }
+        }
+
+        async function saveBuyConfig() {
+            const msg = document.getElementById('configMsg');
+            msg.textContent = 'Saving...';
+            msg.style.color = '#888';
+            try {
+                const res = await fetch('/api/buy_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buyConfig)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = '✓ Saved';
+                    msg.style.color = '#4ade80';
+                } else {
+                    msg.textContent = '✗ Failed';
+                    msg.style.color = '#ff4757';
+                }
+            } catch {
+                msg.textContent = '✗ Failed';
+                msg.style.color = '#ff4757';
+            }
+        }
+
+        // Search filter
+        document.getElementById('itemSearch').addEventListener('input', renderBuyConfig);
+
+        // Fetch config on load
+        fetchBuyConfig();
+
+        // --- Buy Options Logic ---
+        let buyOptions = { autoBuyEnabled: false, items: {} };
+        let buyBoughtCounts = {};  // Track buys per session { item_name: count }
+
+        async function fetchBuyOptions() {
+            try {
+                const res = await fetch('/api/buy_options?_=' + Date.now());
+                const data = await res.json();
+                buyOptions = data;
+                buyBoughtCounts = data.boughtCounts || {};
+                // Update master switch
+                document.getElementById('autoBuyMasterSwitch').checked = buyOptions.autoBuyEnabled === true;
+                document.getElementById('autoBuyMasterLabel').textContent = buyOptions.autoBuyEnabled ? 'Auto-Buy ON' : 'Auto-Buy OFF';
+                document.getElementById('autoBuyMasterLabel').style.color = buyOptions.autoBuyEnabled ? '#4ade80' : '#888';
+                // Update buy under avg settings
+                document.getElementById('buyUnderAvgEnabled').checked = buyOptions.buyUnderAvgEnabled === true;
+                document.getElementById('buyUnderAvgLabel').style.color = buyOptions.buyUnderAvgEnabled ? '#4ade80' : '#888';
+                document.getElementById('buyUnderAvgPercent').value = buyOptions.buyUnderAvgPercent || 10;
+                document.getElementById('buyUnderAvgMaxPerCycle').value = buyOptions.buyUnderAvgMaxPerCycle || 1;
+                document.getElementById('buyUnderAvgMaxPerSession').value = buyOptions.buyUnderAvgMaxPerSession || 0;
+                // Update buy under avg session count display
+                const avgSessionCount = data.buyUnderAvgSessionCount || 0;
+                const avgMaxSession = buyOptions.buyUnderAvgMaxPerSession || 0;
+                const avgCountEl = document.getElementById('buyUnderAvgCount');
+                avgCountEl.textContent = `${avgSessionCount}/${avgMaxSession > 0 ? avgMaxSession : '∞'}`;
+                avgCountEl.style.color = (avgMaxSession > 0 && avgSessionCount >= avgMaxSession) ? '#ff4757' : '#4ade80';
+                // Update auto-pricing settings
+                document.getElementById('autoPricingEnabled').checked = buyOptions.autoPricingEnabled === true;
+                document.getElementById('autoPricingLabel').style.color = buyOptions.autoPricingEnabled ? '#ffd700' : '#888';
+                const defaults = buyOptions.autoPricingDefaults || {};
+                document.getElementById('autoPricingCyclesToIncrease').value = defaults.cyclesToIncrease || 3;
+                document.getElementById('autoPricingCyclesToDecrease').value = defaults.cyclesToDecrease || 3;
+                document.getElementById('autoPricingIncreasePercent').value = defaults.increasePercent || 5;
+                document.getElementById('autoPricingDecreasePercent').value = defaults.decreasePercent || 5;
+                renderBuyOptions();
+                // Fetch 1h averages
+                fetchHourlyAverages();
+            } catch (e) {
+                document.getElementById('buyOptionsList').innerHTML = '<div style="color:#ff4757">Failed to load buy options</div>';
+            }
+        }
+
+        let hourlyAverages = {};
+        async function fetchHourlyAverages() {
+            try {
+                const res = await fetch('/api/prices/averages?_=' + Date.now());
+                const data = await res.json();
+                hourlyAverages = data;
+                const count = Object.keys(data).length;
+                document.getElementById('avgPricesStatus').textContent = count > 0 ? `${count} items with 1h avg` : 'No price data';
+                document.getElementById('avgPricesStatus').style.color = count > 0 ? '#4ade80' : '#888';
+                renderBuyOptions();  // Re-render to show 1h avg in item rows
+            } catch (e) {
+                document.getElementById('avgPricesStatus').textContent = 'Failed to load averages';
+                document.getElementById('avgPricesStatus').style.color = '#ff4757';
+            }
+        }
+
+        function updateGlobalBuyUnderAvg() {
+            buyOptions.buyUnderAvgPercent = parseInt(document.getElementById('buyUnderAvgPercent').value) || 10;
+            buyOptions.buyUnderAvgMaxPerCycle = parseInt(document.getElementById('buyUnderAvgMaxPerCycle').value) || 1;
+            buyOptions.buyUnderAvgMaxPerSession = parseInt(document.getElementById('buyUnderAvgMaxPerSession').value) || 0;
+            debouncedSaveBuyOptions();
+        }
+
+        function toggleBuyUnderAvg() {
+            const checked = document.getElementById('buyUnderAvgEnabled').checked;
+            buyOptions.buyUnderAvgEnabled = checked;
+            document.getElementById('buyUnderAvgLabel').style.color = checked ? '#4ade80' : '#888';
+            debouncedSaveBuyOptions();
+        }
+
+        function toggleAutoPricing() {
+            const checked = document.getElementById('autoPricingEnabled').checked;
+            buyOptions.autoPricingEnabled = checked;
+            document.getElementById('autoPricingLabel').style.color = checked ? '#ffd700' : '#888';
+            debouncedSaveBuyOptions();
+        }
+
+        async function toggleAutoBuyMaster() {
+            const checked = document.getElementById('autoBuyMasterSwitch').checked;
+            buyOptions.autoBuyEnabled = checked;
+            document.getElementById('autoBuyMasterLabel').textContent = checked ? 'Auto-Buy ON' : 'Auto-Buy OFF';
+            document.getElementById('autoBuyMasterLabel').style.color = checked ? '#4ade80' : '#888';
+            await saveBuyOptions();
+        }
+
+        function renderBuyOptions() {
+            const list = document.getElementById('buyOptionsList');
+            
+            // Filter to only show enabled items from buyConfig (Market Research)
+            const enabledItems = Object.entries(buyConfig.items || {})
+                .filter(([name, item]) => item.enabled && !item.hidden)
+                .sort((a, b) => a[0].localeCompare(b[0]));
+
+            if (enabledItems.length === 0) {
+                list.innerHTML = '<div class="empty-state">Enable items in Market Research to configure buying</div>';
+                return;
+            }
+
+            list.innerHTML = enabledItems.map(([name, buyItem]) => {
+                const safeName = name.replace(/'/g, "\\'");
+                const opts = buyOptions.items?.[name] || {};
+                const autoBuy = opts.autoBuy === true;
+                const autoPricing = opts.autoPricing === true;
+                const maxPerCycle = opts.maxPerCycle || 1;
+                const maxPerSession = opts.maxPerSession || 0;  // 0 = unlimited
+                const unitsNeeded = opts.unitsNeeded || 0;  // 0 = unlimited
+                const totalBought = opts.totalBought || 0;  // Persistent count
+                const threshold = buyItem.threshold || 0;
+                const boughtCount = buyBoughtCounts[name.toLowerCase()] || 0;
+                const remaining = maxPerSession > 0 ? Math.max(0, maxPerSession - boughtCount) : '∞';
+                const isOutOfBudget = maxPerSession > 0 && boughtCount >= maxPerSession;
+                const isGoalReached = unitsNeeded > 0 && totalBought >= unitsNeeded;
+                const hasThreshold = threshold > 0;
+                const maxThreshold = opts.maxThreshold || 0;  // 0 = no limit
+                
+                // 1h average info
+                const avgData = hourlyAverages[name];
+                const hasAvg = avgData && avgData.avg > 0;
+                const avgPrice = hasAvg ? avgData.avg : 0;
+                const buyUnderPct = buyOptions.buyUnderAvgPercent || 10;
+                const targetPrice = hasAvg ? Math.floor(avgPrice * (100 - buyUnderPct) / 100) : 0;
+                const avgBadge = hasAvg 
+                    ? `<span style="font-size: 0.65rem; color: #888; padding: 1px 4px; background: #1a1a2e; border-radius: 3px;" title="1h avg: ${avgPrice.toLocaleString()}g, target: ${targetPrice.toLocaleString()}g (${buyUnderPct}% under)">
+                        Ø${avgPrice >= 1000 ? Math.round(avgPrice/1000) + 'k' : avgPrice}
+                       </span>`
+                    : '';
+                
+                return `
+                <div class="config-item ${autoBuy && hasThreshold ? '' : 'disabled'} ${isOutOfBudget || isGoalReached ? 'out-of-stock' : ''}" data-name="${name}">
+                    <button class="toggle-btn enable-btn ${autoBuy ? 'active' : ''}" 
+                        onclick="toggleBuyItemAutoBuy('${safeName}')" title="${autoBuy ? 'Disable auto-buy' : 'Enable auto-buy'}">
+                        ${autoBuy ? '✓' : '○'}
+                    </button>
+                    <span class="config-item-name" style="flex: 1; min-width: 80px;">${name}</span>
+                    ${avgBadge}
+                    <label style="color: #888; font-size: 0.75rem; display: flex; align-items: center; gap: 2px;" title="Current buy threshold (auto-pricing adjusts this)">
+                        ≤
+                        <input type="number" value="${threshold}" min="0" step="1000" 
+                            style="width: 55px; padding: 3px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: right; font-size: 0.75rem;"
+                            onchange="updateBuyThreshold('${safeName}', parseInt(this.value) || 0)">
+                    </label>
+                    <label style="color: #888; font-size: 0.7rem; display: flex; align-items: center; gap: 1px;" title="Max threshold (auto-pricing won't exceed this, 0 = no limit)">
+                        /
+                        <input type="number" value="${maxThreshold}" min="0" step="1000" 
+                            style="width: 50px; padding: 2px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ff8c00; text-align: right; font-size: 0.7rem;"
+                            onchange="updateBuyItemOption('${safeName}', 'maxThreshold', parseInt(this.value) || 0)">g
+                    </label>
+                    <button class="toggle-btn ${autoPricing ? 'active' : ''}" 
+                        onclick="toggleBuyItemAutoPricing('${safeName}')" 
+                        title="${autoPricing ? 'Disable auto-pricing' : 'Enable auto-pricing'}"
+                        style="font-size: 0.7rem; padding: 3px 5px; ${autoPricing ? 'background: #4ade80; color: #000;' : ''}">
+                        📈
+                    </button>
+                    <label style="color: #888; font-size: 0.7rem; display: flex; align-items: center; gap: 2px;" title="Units needed (0 = unlimited)">
+                        <input type="number" value="${unitsNeeded}" min="0" max="9999" 
+                            style="width: 38px; padding: 2px; border-radius: 4px; border: 1px solid #333; background: #252540; color: ${isGoalReached ? '#4ade80' : '#ffd700'}; text-align: center; font-size: 0.7rem;"
+                            onchange="updateBuyItemOption('${safeName}', 'unitsNeeded', parseInt(this.value) || 0)">🎯
+                    </label>
+                    <span onclick="resetTotalBought('${safeName}')" style="font-size: 0.65rem; color: ${isGoalReached ? '#4ade80' : '#888'}; min-width: 40px; padding: 1px 3px; background: ${isGoalReached ? '#1a3a1a' : '#1a1a2e'}; border-radius: 3px; cursor: pointer;" title="Total bought / units needed (click to reset)">
+                        ${totalBought}/${unitsNeeded > 0 ? unitsNeeded : '∞'}${isGoalReached ? '✓' : ''}
+                    </span>
+                    <label style="color: #888; font-size: 0.7rem; display: flex; align-items: center; gap: 2px;">
+                        <input type="number" value="${maxPerCycle}" min="1" max="99" 
+                            style="width: 28px; padding: 2px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.7rem;"
+                            onchange="updateBuyItemOption('${safeName}', 'maxPerCycle', parseInt(this.value) || 1)">/c
+                    </label>
+                    <label style="color: #888; font-size: 0.7rem; display: flex; align-items: center; gap: 2px;">
+                        <input type="number" value="${maxPerSession}" min="0" max="999" 
+                            style="width: 32px; padding: 2px; border-radius: 4px; border: 1px solid #333; background: #252540; color: #ffd700; text-align: center; font-size: 0.7rem;"
+                            onchange="updateBuyItemOption('${safeName}', 'maxPerSession', parseInt(this.value) || 0)"
+                            title="Max buys per session (0 = unlimited)">/s
+                    </label>
+                    <span style="font-size: 0.7rem; color: ${isOutOfBudget ? '#ff4757' : '#4ade80'}; min-width: 35px;">
+                        ${boughtCount}/${maxPerSession > 0 ? maxPerSession : '∞'}
+                    </span>
+                </div>
+            `}).join('');
+        }
+
+        function toggleBuyItemAutoBuy(name) {
+            if (!buyOptions.items) buyOptions.items = {};
+            if (!buyOptions.items[name]) buyOptions.items[name] = {};
+            buyOptions.items[name].autoBuy = !buyOptions.items[name].autoBuy;
+            renderBuyOptions();
+            debouncedSaveBuyOptions();
+        }
+
+        function toggleBuyItemAutoPricing(name) {
+            if (!buyOptions.items) buyOptions.items = {};
+            if (!buyOptions.items[name]) buyOptions.items[name] = {};
+            buyOptions.items[name].autoPricing = !buyOptions.items[name].autoPricing;
+            // Copy global settings to this item when enabling
+            if (buyOptions.items[name].autoPricing) {
+                buyOptions.items[name].cyclesToIncrease = parseInt(document.getElementById('autoPricingCyclesToIncrease').value) || 3;
+                buyOptions.items[name].cyclesToDecrease = parseInt(document.getElementById('autoPricingCyclesToDecrease').value) || 3;
+                buyOptions.items[name].increasePercent = parseInt(document.getElementById('autoPricingIncreasePercent').value) || 5;
+                buyOptions.items[name].decreasePercent = parseInt(document.getElementById('autoPricingDecreasePercent').value) || 5;
+            }
+            renderBuyOptions();
+            debouncedSaveBuyOptions();
+        }
+
+        async function resetTotalBought(name) {
+            if (!confirm(`Reset total bought count for ${name}?`)) return;
+            try {
+                const res = await fetch('/api/buy_total/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item: name })
+                });
+                if (res.ok) {
+                    // Update local state
+                    if (buyOptions.items && buyOptions.items[name]) {
+                        buyOptions.items[name].totalBought = 0;
+                    }
+                    renderBuyOptions();
+                }
+            } catch (e) {
+                console.error('Failed to reset totalBought:', e);
+            }
+        }
+
+        function updateGlobalAutoPricing() {
+            // Update all items that have auto-pricing enabled with new global values
+            const cyclesToIncrease = parseInt(document.getElementById('autoPricingCyclesToIncrease').value) || 3;
+            const cyclesToDecrease = parseInt(document.getElementById('autoPricingCyclesToDecrease').value) || 3;
+            const increasePercent = parseInt(document.getElementById('autoPricingIncreasePercent').value) || 5;
+            const decreasePercent = parseInt(document.getElementById('autoPricingDecreasePercent').value) || 5;
+            
+            // Save to buyOptions global settings
+            buyOptions.autoPricingDefaults = { cyclesToIncrease, cyclesToDecrease, increasePercent, decreasePercent };
+            
+            // Update all items with auto-pricing enabled
+            if (buyOptions.items) {
+                for (const [name, opts] of Object.entries(buyOptions.items)) {
+                    if (opts.autoPricing) {
+                        opts.cyclesToIncrease = cyclesToIncrease;
+                        opts.cyclesToDecrease = cyclesToDecrease;
+                        opts.increasePercent = increasePercent;
+                        opts.decreasePercent = decreasePercent;
+                    }
+                }
+            }
+            debouncedSaveBuyOptions();
+        }
+
+        function updateBuyItemOption(name, field, value) {
+            if (!buyOptions.items) buyOptions.items = {};
+            if (!buyOptions.items[name]) buyOptions.items[name] = {};
+            buyOptions.items[name][field] = value;
+            debouncedSaveBuyOptions();
+        }
+
+        function updateBuyThreshold(name, value) {
+            // Update threshold in buyConfig (Market Research config)
+            if (buyConfig.items[name]) {
+                buyConfig.items[name].threshold = value;
+                debouncedSave();  // Uses the buy config save
+                renderBuyOptions();  // Re-render to update disabled state
+            }
+        }
+
+        let saveBuyOptionsTimeout = null;
+        function debouncedSaveBuyOptions() {
+            if (saveBuyOptionsTimeout) clearTimeout(saveBuyOptionsTimeout);
+            saveBuyOptionsTimeout = setTimeout(() => {
+                saveBuyOptions();
+            }, 500);
+        }
+
+        async function saveBuyOptions() {
+            const msg = document.getElementById('buyOptionsMsg');
+            msg.textContent = 'Saving...';
+            msg.style.color = '#888';
+            try {
+                const res = await fetch('/api/buy_options', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buyOptions)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = '✓ Saved';
+                    msg.style.color = '#4ade80';
+                } else {
+                    msg.textContent = '✗ Failed';
+                    msg.style.color = '#ff4757';
+                }
+            } catch {
+                msg.textContent = '✗ Failed';
+                msg.style.color = '#ff4757';
+            }
+        }
+
+        // Fetch buy options on load (after buyConfig)
+        setTimeout(fetchBuyOptions, 100);
+
+        // --- Sell Config Logic ---
+        let sellConfig = { checkAllStaleOnStart: false, items: {} };
+
+        async function fetchSellConfig() {
+            try {
+                const res = await fetch('/api/sell_config?_=' + Date.now());
+                sellConfig = await res.json();
+                // Update global checkbox
+                document.getElementById('checkAllStaleOnStart').checked = sellConfig.checkAllStaleOnStart === true;
+                renderSellConfig();
+                // Update stock status in session card
+                if (typeof renderStockStatus === 'function') renderStockStatus();
+            } catch (e) {
+                document.getElementById('sellConfigList').innerHTML = '<div style="color:#ff4757">Failed to load config</div>';
+            }
+        }
+
+        async function toggleCheckAllStaleOnStart() {
+            const checked = document.getElementById('checkAllStaleOnStart').checked;
+            sellConfig.checkAllStaleOnStart = checked;
+            await saveSellConfig();
+        }
+
+        function renderSellConfig() {
+            const list = document.getElementById('sellConfigList');
+            const items = Object.entries(sellConfig.items || {}).sort((a, b) => {
+                // Enabled first, then by name
+                if (a[1].enabled !== b[1].enabled) return b[1].enabled ? 1 : -1;
+                return a[0].localeCompare(b[0]);
+            });
+
+            if (items.length === 0) {
+                list.innerHTML = '<div class="empty-state">No sell items configured</div>';
+                return;
+            }
+
+            list.innerHTML = items.map(([name, item]) => {
+                const safeName = name.replace(/'/g, "\\'");
+                const isAuto = item.autoPricing !== false; // default to auto
+                const staleEnabled = item.staleRelist === true;
+                const staleMinutes = item.staleMinutes || 15;
+                const stock = item.stock || 10;
+                const soldCount = (sessionStats && sessionStats.soldCounts) ? (sessionStats.soldCounts[name.toLowerCase().trim()] || 0) : 0;
+                const remaining = Math.max(0, stock - soldCount);
+                const stockColor = remaining <= 0 ? '#ff6b6b' : (remaining <= 3 ? '#ffa500' : '#4ade80');
+                return `
+                <div class="config-item sell-item ${item.enabled ? '' : 'disabled'}" data-name="${name}">
+                    <div class="sell-item-row">
+                        <button class="toggle-btn enable-btn ${item.enabled ? 'active' : ''}" 
+                            onclick="toggleSellItemEnabled('${safeName}')" title="${item.enabled ? 'Disable' : 'Enable'}">
+                            ${item.enabled ? '✓' : '○'}
+                        </button>
+                        <span class="config-item-name" style="flex: 1;">${name}</span>
+                        <span style="color: ${stockColor}; font-size: 0.8rem;" title="Remaining this session">
+                            📦 ${remaining}/
+                        </span>
+                        <input type="number" class="config-item-threshold" style="width: 50px; color: ${stockColor};"
+                            value="${stock}" min="1"
+                            onchange="updateSellStock('${safeName}', this.value)"
+                            title="Total stock available">
+                        <label style="color: #888; font-size: 0.8rem;">List#:</label>
+                        <input type="number" class="config-item-threshold" style="width: 55px;"
+                            value="${item.listingsCount || 1}" min="1"
+                            onchange="updateSellListingsCount('${safeName}', this.value)">
+                        <label style="color: #888; font-size: 0.8rem;">Qty:</label>
+                        <input type="number" class="config-item-threshold" style="width: 55px;"
+                            value="${item.quantityPerListing || 1}" min="1"
+                            onchange="updateSellQuantityPerListing('${safeName}', this.value)">
+                        <button class="toggle-btn" onclick="deleteSellItem('${safeName}')" title="Delete" style="background: #4a2727; color: #ff6b6b; width: 28px; height: 28px;">
+                            ✕
+                        </button>
+                    </div>
+                    <div class="sell-item-row secondary">
+                        <button class="toggle-btn ${isAuto ? 'active' : ''}" 
+                            onclick="toggleSellAutoPricing('${safeName}')"
+                            style="width: auto; padding: 4px 10px; font-size: 0.8rem;">
+                            ${isAuto ? '📊 Auto' : '📌 Fixed'}
+                        </button>
+                        <label style="color: #888; font-size: 0.8rem;">Profit:</label>
+                        <input type="number" class="config-item-threshold" style="width: 85px;"
+                            value="${item.minProfit || 0}" min="0" step="1000"
+                            onchange="updateSellMinProfit('${safeName}', this.value)">
+                        <label style="color: #888; font-size: 0.8rem;">${isAuto ? 'Min:' : 'Price:'}</label>
+                        <input type="number" class="config-item-threshold" style="width: 100px;"
+                            value="${item.minPrice || 0}" min="0" step="1000"
+                            onchange="updateSellMinPrice('${safeName}', this.value)">
+                        <span style="flex: 1;"></span>
+                        <button class="toggle-btn ${staleEnabled ? 'active' : ''}" 
+                            onclick="toggleSellStaleRelist('${safeName}')"
+                            style="width: auto; padding: 4px 10px; font-size: 0.8rem;">
+                            ↻ ${staleEnabled ? 'On' : 'Off'}
+                        </button>
+                        <input type="number" class="config-item-threshold" style="width: 55px; ${staleEnabled ? '' : 'opacity: 0.4;'}"
+                            value="${staleMinutes}" min="1" max="60"
+                            onchange="updateSellStaleMinutes('${safeName}', this.value)"
+                            title="Relist if undercut after X min" ${staleEnabled ? '' : 'disabled'}>
+                        <span style="color: #888; font-size: 0.75rem;">min</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function toggleSellItemEnabled(name) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].enabled = !sellConfig.items[name].enabled;
+                renderSellConfig();
+                debouncedSaveSell();
+            }
+        }
+
+        function toggleSellAutoPricing(name) {
+            if (sellConfig.items[name]) {
+                // Default is auto (true), so toggle it
+                const current = sellConfig.items[name].autoPricing !== false;
+                sellConfig.items[name].autoPricing = !current;
+                renderSellConfig();
+                debouncedSaveSell();
+            }
+        }
+
+        function updateSellListingsCount(name, value) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].listingsCount = parseInt(value) || 1;
+                debouncedSaveSell();
+            }
+        }
+
+        function updateSellQuantityPerListing(name, value) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].quantityPerListing = parseInt(value) || 1;
+                debouncedSaveSell();
+            }
+        }
+
+        function updateSellMinPrice(name, value) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].minPrice = parseInt(value) || 0;
+                debouncedSaveSell();
+            }
+        }
+
+        function updateSellMinProfit(name, value) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].minProfit = parseInt(value) || 0;
+                debouncedSaveSell();
+            }
+        }
+
+        function updateSellStock(name, value) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].stock = parseInt(value) || 10;
+                renderSellConfig();
+                debouncedSaveSell();
+            }
+        }
+
+        function deleteSellItem(name) {
+            if (confirm(`Delete "${name}" from sell list?`)) {
+                delete sellConfig.items[name];
+                renderSellConfig();
+                debouncedSaveSell();
+            }
+        }
+
+        let saveSellTimeout = null;
+        function debouncedSaveSell() {
+            if (saveSellTimeout) clearTimeout(saveSellTimeout);
+            saveSellTimeout = setTimeout(() => {
+                saveSellConfig();
+            }, 500);
+        }
+
+        function toggleAddSellItem() {
+            const row = document.getElementById('addSellItemRow');
+            row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+            if (row.style.display !== 'none') {
+                document.getElementById('newSellItemName').focus();
+            }
+        }
+
+        async function addNewSellItem() {
+            const name = document.getElementById('newSellItemName').value.trim();
+            const qtyPerListing = parseInt(document.getElementById('newSellItemQtyPerListing').value) || 1;
+            const posX = parseInt(document.getElementById('newSellItemPosX').value) || 0;
+            const posY = parseInt(document.getElementById('newSellItemPosY').value) || 0;
+            if (!name) return;
+            
+            try {
+                const res = await fetch('/api/sell_config/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, quantityPerListing: qtyPerListing, position: [posX, posY] })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sellConfig = data.config;
+                    document.getElementById('newSellItemName').value = '';
+                    document.getElementById('newSellItemQtyPerListing').value = '1';
+                    document.getElementById('newSellItemPosX').value = '';
+                    document.getElementById('newSellItemPosY').value = '';
+                    document.getElementById('addSellItemRow').style.display = 'none';
+                    renderSellConfig();
+                }
+            } catch (e) {
+                console.error('Failed to add sell item:', e);
+            }
+        }
+
+        async function saveSellConfig() {
+            const msg = document.getElementById('sellConfigMsg');
+            msg.textContent = 'Saving...';
+            msg.style.color = '#888';
+            try {
+                const res = await fetch('/api/sell_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(sellConfig)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = '✓ Saved';
+                    msg.style.color = '#4ade80';
+                } else {
+                    msg.textContent = '✗ Failed';
+                    msg.style.color = '#ff4757';
+                }
+            } catch {
+                msg.textContent = '✗ Failed';
+                msg.style.color = '#ff4757';
+            }
+        }
+
+        function toggleSellStaleRelist(name) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].staleRelist = !sellConfig.items[name].staleRelist;
+                renderSellConfig();
+                debouncedSaveSell();
+            }
+        }
+
+        function updateSellStaleMinutes(name, value) {
+            if (sellConfig.items[name]) {
+                sellConfig.items[name].staleMinutes = parseInt(value) || 15;
+                debouncedSaveSell();
+            }
+        }
+
+        function autoCalculateMinPrices() {
+            // Calculate min price for each sell item based on:
+            // - Material costs from DB (1h avg)
+            // - 11% tax
+            // - Item's minProfit + 5000 base profit
+            // Formula: minPrice = (materialCost + minProfit + 5000) / 0.89
+            
+            const BASE_PROFIT = 5000;
+            const TAX_MULTIPLIER = 1 - 0.11;  // 0.89
+            
+            let updated = 0;
+            let skipped = 0;
+            
+            for (const [itemName, config] of Object.entries(sellConfig.items || {})) {
+                // Find recipe for this item
+                const itemNorm = itemName.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                let recipe = null;
+                
+                for (const [recipeName, recipeData] of Object.entries(craftRecipes)) {
+                    const recipeNorm = recipeName.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                    if (recipeNorm === itemNorm || recipeNorm.includes(itemNorm) || itemNorm.includes(recipeNorm)) {
+                        recipe = recipeData;
+                        break;
+                    }
+                }
+                
+                if (!recipe) {
+                    console.log(`[AutoMin] No recipe found for: ${itemName}`);
+                    skipped++;
+                    continue;
+                }
+                
+                // Calculate material cost (missing prices = 0)
+                let materialCost = 0;
+                
+                for (const mat of (recipe.materials || [])) {
+                    const price = getItemPrice(mat.name);
+                    materialCost += price * (mat.qty || 1);
+                }
+                
+                // Calculate min price: (cost + profit) / (1 - tax)
+                // profit = item's minProfit + 5000 base
+                const itemProfit = (config.minProfit || 0) + BASE_PROFIT;
+                const minPrice = Math.ceil((materialCost + itemProfit) / TAX_MULTIPLIER);
+                
+                console.log(`[AutoMin] ${itemName}: cost=${materialCost}, profit=${itemProfit}, minPrice=${minPrice}`);
+                
+                // Update config
+                sellConfig.items[itemName].minPrice = minPrice;
+                updated++;
+            }
+            
+            // Re-render and save
+            renderSellConfig();
+            debouncedSaveSell();
+            
+            const msg = document.getElementById('sellConfigMsg');
+            msg.textContent = `✓ Updated ${updated} items (${skipped} skipped)`;
+            msg.style.color = '#4ade80';
+        }
+
+        // Fetch sell config on load
+        fetchSellConfig();
+
+        // --- My Listings Logic ---
+        let myListings = [];
+
+        function clearMyListings() {
+            myListings = [];
+            renderMyListings();
+        }
+
+        function renderMyListings() {
+            const container = document.getElementById('myListings');
+            const stats = document.getElementById('listingsStats');
+            const totalDisplay = document.getElementById('listingsTotal');
+            
+            if (myListings.length === 0) {
+                container.innerHTML = '<div class="empty-state">Waiting for bot to scan listings...</div>';
+                stats.innerHTML = '';
+                totalDisplay.textContent = '0 Items Listed';
+                return;
+            }
+
+            // Stack items with same name and unit_price (normalize names for OCR inconsistency)
+            const stacked = {};
+            let totalValue = 0;
+            
+            function normalizeName(name) {
+                // Remove apostrophes and normalize for OCR inconsistencies
+                return (name || 'Unknown').toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+            }
+            
+            myListings.forEach(item => {
+                const normalizedName = normalizeName(item.name);
+                const unitPrice = item.unit_price || item.price || 0;  // Use unit_price if available
+                const key = `${normalizedName}_${unitPrice}`;
+                if (stacked[key]) {
+                    stacked[key].quantity++;
+                    stacked[key].totalValue += item.price || 0;
+                } else {
+                    stacked[key] = {
+                        name: item.name || 'Unknown Item',
+                        unit_price: unitPrice,
+                        price: item.price || 0,  // Keep original price for display
+                        totalValue: item.price || 0,
+                        quantity: 1
+                    };
+                }
+                totalValue += item.price || 0;
+            });
+
+            const stackedList = Object.values(stacked).sort((a, b) => b.unit_price - a.unit_price);
+
+            // Get market prices from session stats (includes full price distribution)
+            const lowestPrices = sessionStats?.lowestPrices || {};
+            const marketPrices = sessionStats?.marketPrices || {};
+            const hourlyStats = sessionStats?.hourlyPriceStats || {};
+            
+            // Helper to find market data for an item (fuzzy match on name)
+            function findMarketData(itemName) {
+                const normalized = (itemName || '').toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                let result = null;
+                
+                for (const [key, data] of Object.entries(marketPrices)) {
+                    const keyNorm = key.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                    if (keyNorm === normalized || keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+                        result = { ...data };
+                        break;
+                    }
+                }
+                
+                // Fallback to lowestPrices if no marketPrices
+                if (!result) {
+                    for (const [key, data] of Object.entries(lowestPrices)) {
+                        const keyNorm = key.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                        if (keyNorm === normalized || keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+                            result = { lowest: data.price, prices: [] };
+                            break;
+                        }
+                    }
+                }
+                
+                // Add hourly stats if available
+                if (result) {
+                    for (const [key, data] of Object.entries(hourlyStats)) {
+                        const keyNorm = key.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                        if (keyNorm === normalized || keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+                            result.hourly = data;
+                            break;
+                        }
+                    }
+                }
+                
+                return result;
+            }
+            
+            // Calculate undercut volume (units priced below your price)
+            function getUndercutVolume(marketData, yourPrice) {
+                if (!marketData || !marketData.prices) return 0;
+                let volume = 0;
+                for (const p of marketData.prices) {
+                    if (p.price < yourPrice) {
+                        volume += p.quantity || 1;
+                    }
+                }
+                return volume;
+            }
+
+            container.innerHTML = stackedList.map(item => {
+                const marketData = findMarketData(item.name);
+                let marketDisplay = '';
+                if (marketData !== null) {
+                    const marketPrice = marketData.lowest;
+                    const undercutVolume = getUndercutVolume(marketData, item.unit_price);
+                    
+                    // Compare unit prices
+                    const diff = item.unit_price - marketPrice;
+                    // Green = you're cheaper (good), Red = you're more expensive (bad)
+                    const color = diff < 0 ? '#4ade80' : diff > 0 ? '#f87171' : '#888';
+                    const sign = diff > 0 ? '+' : '';
+                    
+                    let undercutDisplay = '';
+                    if (undercutVolume > 0) {
+                        undercutDisplay = ` | <span style="color:#f87171;">${undercutVolume} cheaper</span>`;
+                    } else if (diff <= 0) {
+                        undercutDisplay = ` | <span style="color:#4ade80;">You're cheapest!</span>`;
+                    }
+                    
+                    // Hourly average display
+                    let hourlyDisplay = '';
+                    if (marketData.hourly) {
+                        const h = marketData.hourly;
+                        hourlyDisplay = `<div style="font-size:0.75rem;color:#888;">1h avg: ${h.avg.toLocaleString()} (min ${h.min.toLocaleString()}, ${h.count} samples)</div>`;
+                    }
+                    
+                    marketDisplay = `<div style="font-size:0.8rem;color:${color};">Market: ${marketPrice.toLocaleString()} (${sign}${diff.toLocaleString()})${undercutDisplay}</div>${hourlyDisplay}`;
+                }
+                return `
+                <div class="price-item">
+                    <div>
+                        <div class="price-item-name">${item.name}${item.quantity > 1 ? ` <span style="color:#ffd700;">(x${item.quantity})</span>` : ''}</div>
+                        ${marketDisplay}
+                    </div>
+                    <div class="price-item-value">${item.unit_price.toLocaleString()}</div>
+                </div>
+            `}).join('');
+
+            totalDisplay.textContent = `${myListings.length} Items Listed`;
+            stats.innerHTML = `${stackedList.length} unique items | Total value: ${totalValue.toLocaleString()} gold`;
+        }
+
+        // Handle listings update from bot
+        function handleListingsUpdate(data) {
+            myListings = data.listings || [];
+            renderMyListings();
+        }
+
+        // Extend message handler to handle listings
+        const originalHandleMessage = handleMessage;
+        handleMessage = function(message) {
+            if (message.type === 'listings_update') {
+                handleListingsUpdate(message);
+                if (message.stats) {
+                    updateSessionStats(message.stats);
+                }
+            } else if (message.type === 'market_prices') {
+                // Update session stats with new market prices and re-render listings
+                if (message.stats) {
+                    updateSessionStats(message.stats);
+                    renderCraftingProfit();  // Update crafting profit with new prices
+                }
+                renderMyListings();  // Re-render to show updated undercut info
+            } else if (message.type === 'item_bought' || message.type === 'item_sold' || message.type === 'item_listed' || message.type === 'lowest_price' || message.type === 'session_reset') {
+                if (message.stats) {
+                    updateSessionStats(message.stats);
+                    renderCraftingProfit();  // Update crafting profit with new prices
+                }
+                // Refresh buy options to update bought counts
+                if (message.type === 'item_bought' || message.type === 'session_reset') {
+                    fetchBuyOptions();
+                }
+                // Refresh sell config to update stock status
+                if (message.type === 'session_reset') {
+                    fetchSellConfig();
+                }
+            } else if (message.type === 'stock_depleted') {
+                // An item ran out of stock - refresh sell config
+                console.log(`⛔ Out of stock: ${message.item} (sold ${message.sold}/${message.stock})`);
+                fetchSellConfig();
+            } else if (message.type === 'price_adjusted') {
+                // Auto-pricing adjusted a threshold - refresh configs
+                console.log(`📈 Price adjusted: ${message.item} ${message.oldPrice} → ${message.newPrice} (${message.reason})`);
+                fetchBuyConfig();
+                fetchBuyOptions();
+            } else {
+                originalHandleMessage(message);
+            }
+        };
+
+        // --- Session Stats Logic ---
+        let sessionStats = null;
+
+        async function fetchSessionStats() {
+            try {
+                const res = await fetch('/api/session_stats');
+                sessionStats = await res.json();
+                updateSessionStats(sessionStats);
+                // Also update crafting profit when stats load
+                if (typeof renderCraftingProfit === 'function') renderCraftingProfit();
+            } catch (e) {
+                console.error('Failed to fetch session stats:', e);
+            }
+        }
+
+        function updateSessionStats(stats) {
+            if (!stats) return;
+            sessionStats = stats;
+
+            // Re-render sell config to update stock display
+            if (typeof renderSellConfig === 'function') renderSellConfig();
+
+            // Update totals
+            document.getElementById('sessionBoughtCount').textContent = stats.itemsBought || 0;
+            document.getElementById('sessionBoughtTotal').textContent = (stats.totalBought || 0).toLocaleString();
+            document.getElementById('sessionSoldCount').textContent = stats.itemsSold || 0;
+            document.getElementById('sessionSoldTotal').textContent = (stats.totalSold || 0).toLocaleString();
+
+            // Update current listings
+            document.getElementById('sessionListingsCount').textContent = stats.currentListingsCount || 0;
+            document.getElementById('sessionListingsValue').textContent = (stats.currentListingsValue || 0).toLocaleString();
+
+            // Update uptime
+            const uptime = stats.uptime || 0;
+            const hours = Math.floor(uptime / 3600000);
+            const minutes = Math.floor((uptime % 3600000) / 60000);
+            const seconds = Math.floor((uptime % 60000) / 1000);
+            let uptimeStr = '';
+            if (hours > 0) {
+                uptimeStr = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                uptimeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            document.getElementById('sessionUptime').textContent = `Session: ${uptimeStr}`;
+
+            // Update recent buys
+            const boughtList = document.getElementById('sessionBoughtList');
+            if (stats.recentBought && stats.recentBought.length > 0) {
+                boughtList.innerHTML = stats.recentBought.slice().reverse().map(b => `
+                    <div class="session-item bought">
+                        <span class="session-item-name">${b.item}</span>
+                        <span class="session-item-qty">${b.quantity}x</span>
+                        <span class="session-item-price">${b.unit_price.toLocaleString()}</span>
+                    </div>
+                `).join('');
+            } else {
+                boughtList.innerHTML = '<div class="empty-state" style="padding: 15px;">No purchases yet</div>';
+            }
+
+            // Update recent sales
+            const soldList = document.getElementById('sessionSoldList');
+            if (stats.recentSold && stats.recentSold.length > 0) {
+                soldList.innerHTML = stats.recentSold.slice().reverse().map(s => `
+                    <div class="session-item sold">
+                        <span class="session-item-name">${s.item}</span>
+                        <span class="session-item-qty">${s.quantity}x</span>
+                        <span class="session-item-price">${(s.unit_price || 0).toLocaleString()}</span>
+                    </div>
+                `).join('');
+            } else {
+                soldList.innerHTML = '<div class="empty-state" style="padding: 15px;">No sales yet</div>';
+            }
+
+            // Update stock status display
+            renderStockStatus();
+            
+            // Update bought items summary
+            renderBoughtItemsSummary();
+        }
+
+        function renderStockStatus() {
+            const container = document.getElementById('stockStatusList');
+            if (!container) return;
+
+            if (!sellConfig || !sellConfig.items || Object.keys(sellConfig.items).length === 0) {
+                container.innerHTML = '<span style="color: #888; font-size: 0.85rem;">No sell items configured</span>';
+                return;
+            }
+
+            const items = Object.entries(sellConfig.items)
+                .filter(([name, item]) => item.enabled || (item.stock && item.stock > 0))
+                .sort((a, b) => a[0].localeCompare(b[0]));
+
+            if (items.length === 0) {
+                container.innerHTML = '<span style="color: #888; font-size: 0.85rem;">No active sell items</span>';
+                return;
+            }
+
+            container.innerHTML = items.map(([name, item]) => {
+                const stock = item.stock || 10;
+                const soldCount = (sessionStats && sessionStats.soldCounts) ? (sessionStats.soldCounts[name.toLowerCase().trim()] || 0) : 0;
+                const remaining = Math.max(0, stock - soldCount);
+                
+                let bgColor, textColor;
+                if (remaining <= 0) {
+                    bgColor = '#4a2727';
+                    textColor = '#ff6b6b';
+                } else if (remaining <= 3) {
+                    bgColor = '#4a3a27';
+                    textColor = '#ffa500';
+                } else {
+                    bgColor = '#274a27';
+                    textColor = '#4ade80';
+                }
+
+                const shortName = name.length > 12 ? name.substring(0, 10) + '...' : name;
+                return `<span style="background: ${bgColor}; color: ${textColor}; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;" title="${name}: ${remaining} remaining of ${stock}">
+                    ${shortName} <strong>${remaining}/${stock}</strong>
+                </span>`;
+            }).join('');
+        }
+
+        function renderBoughtItemsSummary() {
+            const container = document.getElementById('boughtItemsSummary');
+            if (!container) return;
+
+            if (!sessionStats || !sessionStats.boughtByItem || Object.keys(sessionStats.boughtByItem).length === 0) {
+                container.innerHTML = '<span style="color: #888; font-size: 0.85rem;">No items bought yet</span>';
+                return;
+            }
+
+            const items = Object.entries(sessionStats.boughtByItem)
+                .sort((a, b) => b[1].count - a[1].count);  // Sort by count descending
+
+            container.innerHTML = items.map(([name, data]) => {
+                const avgPrice = Math.round(data.total / data.count);
+                const shortName = name.length > 12 ? name.substring(0, 10) + '...' : name;
+                
+                // Check if goal reached
+                const opts = buyOptions.items?.[name] || {};
+                const unitsNeeded = opts.unitsNeeded || 0;
+                const totalBought = opts.totalBought || 0;
+                const isGoalReached = unitsNeeded > 0 && totalBought >= unitsNeeded;
+                
+                // Get threshold from buyConfig
+                const threshold = buyConfig.items?.[name]?.threshold || 0;
+                const thresholdStr = threshold > 0 ? (threshold >= 1000 ? Math.round(threshold/1000) + 'k' : threshold) : '0';
+                
+                const bgColor = isGoalReached ? '#1a3a1a' : '#1a2a3a';
+                const textColor = isGoalReached ? '#4ade80' : '#60a5fa';
+                
+                return `<span style="background: ${bgColor}; color: ${textColor}; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;" title="${name}: ${data.count}x @ avg ${avgPrice.toLocaleString()}g = ${data.total.toLocaleString()}g total, threshold: ${threshold.toLocaleString()}g${isGoalReached ? ' (GOAL REACHED!)' : ''}">
+                    ${shortName} <strong>${data.count}x</strong> <span style="color: #ffd700; font-size: 0.7rem;">${data.total >= 1000 ? Math.round(data.total/1000) + 'k' : data.total}g</span> <span style="color: #888; font-size: 0.65rem;">≤${thresholdStr}</span>${isGoalReached ? '✓' : ''}
+                </span>`;
+            }).join('');
+        }
+
+        async function resetSessionStats() {
+            if (!confirm('Reset all session stats?')) return;
+            try {
+                await fetch('/api/session_stats/reset', { method: 'POST' });
+                fetchSessionStats();
+            } catch (e) {
+                console.error('Failed to reset session stats:', e);
+            }
+        }
+
+        // Fetch session stats on load (will be updated via WebSocket after this)
+        fetchSessionStats();
+
+        // --- Collapsible Cards ---
+        function toggleCard(cardId) {
+            const card = document.getElementById(cardId);
+            card.classList.toggle('collapsed');
+            // Save state to localStorage
+            const collapsed = JSON.parse(localStorage.getItem('collapsedCards') || '{}');
+            collapsed[cardId] = card.classList.contains('collapsed');
+            localStorage.setItem('collapsedCards', JSON.stringify(collapsed));
+        }
+
+        // Restore collapsed state on load
+        (function() {
+            const collapsed = JSON.parse(localStorage.getItem('collapsedCards') || '{}');
+            Object.entries(collapsed).forEach(([cardId, isCollapsed]) => {
+                if (isCollapsed) {
+                    const card = document.getElementById(cardId);
+                    if (card) card.classList.add('collapsed');
+                }
+            });
+        })();
+
+        // --- Drag and Drop Card Reordering ---
+        let draggedCard = null;
+
+        function initDragDrop() {
+            const grid = document.querySelector('.grid');
+            const cards = document.querySelectorAll('.card[draggable="true"]');
+            
+            cards.forEach(card => {
+                // Only allow dragging from the handle
+                const handle = card.querySelector('.drag-handle');
+                if (handle) {
+                    handle.addEventListener('mousedown', () => {
+                        card.setAttribute('draggable', 'true');
+                    });
+                    handle.addEventListener('mouseup', () => {
+                        card.setAttribute('draggable', 'true');
+                    });
+                }
+                
+                card.addEventListener('dragstart', (e) => {
+                    // Only drag from handle
+                    if (!e.target.closest('.drag-handle') && e.target !== card) {
+                        e.preventDefault();
+                        return;
+                    }
+                    draggedCard = card;
+                    card.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', card.id);
+                });
+                
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                    draggedCard = null;
+                    document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+                });
+                
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (draggedCard && draggedCard !== card) {
+                        card.classList.add('drag-over');
+                    }
+                });
+                
+                card.addEventListener('dragleave', () => {
+                    card.classList.remove('drag-over');
+                });
+                
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    card.classList.remove('drag-over');
+                    
+                    if (draggedCard && draggedCard !== card) {
+                        const allCards = [...grid.querySelectorAll('.card')];
+                        const draggedIdx = allCards.indexOf(draggedCard);
+                        const targetIdx = allCards.indexOf(card);
+                        
+                        if (draggedIdx < targetIdx) {
+                            card.parentNode.insertBefore(draggedCard, card.nextSibling);
+                        } else {
+                            card.parentNode.insertBefore(draggedCard, card);
+                        }
+                        
+                        saveCardOrder();
+                    }
+                });
+            });
+        }
+        
+        function saveCardOrder() {
+            const grid = document.querySelector('.grid');
+            const order = [...grid.querySelectorAll('.card')].map(c => c.id);
+            localStorage.setItem('cardOrder', JSON.stringify(order));
+        }
+        
+        function restoreCardOrder() {
+            const order = JSON.parse(localStorage.getItem('cardOrder') || '[]');
+            if (order.length === 0) return;
+            
+            const grid = document.querySelector('.grid');
+            order.forEach(cardId => {
+                const card = document.getElementById(cardId);
+                if (card) {
+                    grid.appendChild(card);
+                }
+            });
+        }
+        
+        // Initialize drag-drop and restore order
+        restoreCardOrder();
+        initDragDrop();
+
+        // --- Crafting Profit Logic ---
+        // Predefined recipes (same as calculator)
+        const SELL_TAX = 0.11;  // 11% market tax
+        
+        const craftRecipes = {
+            'Tinkerers Toolkit': {
+                sellPrice: 90000,
+                yield: 10,  // Crafts 10 items
+                materials: [
+                    { name: 'Bloodstone', qty: 3 },
+                    { name: 'Darkstone', qty: 3 },
+                    { name: 'Twilight Citrine', qty: 3 },
+                    { name: 'Cardinal Ruby', qty: 3 },
+                    { name: 'Jadenium Powder', qty: 3 },
+                    { name: 'Dark Matter', qty: 1 }
+                ]
+            },
+            'Angelic Gem': {
+                sellPrice: 509030,
+                materials: [
+                    { name: 'Tarethium Core', qty: 2 },
+                    { name: 'Dark Matter', qty: 3 },
+                    { name: 'Demon Soulstone', qty: 3 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            'Chaos Gem': {
+                sellPrice: 575406,
+                materials: [
+                    { name: 'Jadenium Powder', qty: 4 },
+                    { name: 'Inferno Stone', qty: 5 },
+                    { name: 'Hellstar', qty: 4 },
+                    { name: 'Storm Opal', qty: 1 },
+                    { name: 'Dark Matter', qty: 2 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            'Moonstone Gem': {
+                sellPrice: 575009,
+                materials: [
+                    { name: 'Jadenium Powder', qty: 4 },
+                    { name: 'Satans Nail', qty: 4 },
+                    { name: 'Inferno Stone', qty: 3 },
+                    { name: 'Storm Opal', qty: 2 },
+                    { name: 'Dark Matter', qty: 2 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            'Elemental Gem': {
+                sellPrice: 575506,
+                materials: [
+                    { name: 'Jadenium Powder', qty: 5 },
+                    { name: 'Inferno Stone', qty: 3 },
+                    { name: 'Storm Opal', qty: 3 },
+                    { name: 'Hellstar', qty: 5 },
+                    { name: 'Enchanted Sigil', qty: 1 }
+                ]
+            },
+            "Angel's Wisdom": {
+                sellPrice: 0,
+                materials: [
+                    { name: 'Angelic Key', qty: 1 },
+                    { name: 'Enchanted Sigil', qty: 2 },
+                    { name: 'Prophets Wisdom', qty: 1 }
+                ]
+            },
+            'Soul of Hatred': {
+                sellPrice: 0,
+                materials: [
+                    { name: 'Soul of Anguish', qty: 3 },
+                    { name: 'Soul of Despair', qty: 3 },
+                    { name: 'Soul of Corruption', qty: 3 }
+                ]
+            }
+        };
+
+        // Material prices data (loaded manually via Fetch Prices button)
+        let materialPricesData = {};
+
+        function getItemPrice(itemName) {
+            return getItemPriceWithSource(itemName).price;
+        }
+        
+        function getItemPriceWithSource(itemName) {
+            // Get price data from sessionStats
+            const hourlyStats = sessionStats?.hourlyPriceStats || {};
+            
+            const normalized = (itemName || '').toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+            
+            // 1. Use hourly average from database first (most reliable)
+            for (const [key, data] of Object.entries(hourlyStats)) {
+                const keyNorm = key.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                if (keyNorm === normalized || keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+                    return { price: data.avg, source: 'db' };
+                }
+            }
+            
+            // 2. Fallback to manually entered material prices
+            if (typeof materialPricesData !== 'undefined') {
+                for (const [key, data] of Object.entries(materialPricesData)) {
+                    const keyNorm = key.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                    if (keyNorm === normalized || keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+                        if (data.price > 0) return { price: data.price, source: 'manual' };
+                    }
+                }
+            }
+            
+            // 3. Return 0 if no price found
+            return { price: 0, source: 'none' };
+        }
+        
+        function getLatestPrice(itemName) {
+            // Get the latest/lowest price from lowestPrices
+            const lowestPrices = sessionStats?.lowestPrices || {};
+            const normalized = (itemName || '').toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+            
+            for (const [key, data] of Object.entries(lowestPrices)) {
+                const keyNorm = key.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                if (keyNorm === normalized || keyNorm.includes(normalized) || normalized.includes(keyNorm)) {
+                    return { price: data.price || 0, source: 'latest' };
+                }
+            }
+            
+            return { price: 0, source: 'none' };
+        }
+        
+        function getOutputPrice(itemName) {
+            // Get output price based on user selection (latest or 1h avg)
+            const selector = document.getElementById('outputPriceSource');
+            const useLatest = selector && selector.value === 'latest';
+            
+            if (useLatest) {
+                const latest = getLatestPrice(itemName);
+                if (latest.price > 0) return latest;
+            }
+            
+            // Fallback to regular price (1h avg)
+            return getItemPriceWithSource(itemName);
+        }
+
+        function renderCraftingProfit() {
+            const container = document.getElementById('craftProfitList');
+            if (!container) {
+                console.error('craftProfitList container not found');
+                return;
+            }
+
+            try {
+            // Show all recipes, calculate profit from tracked material prices
+            const profitData = [];
+            
+            // Get enabled items from buyConfig
+            const enabledItems = new Set();
+            if (buyConfig && buyConfig.items) {
+                for (const [name, item] of Object.entries(buyConfig.items)) {
+                    if (item.enabled && !item.hidden) {
+                        enabledItems.add(name.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim());
+                    }
+                }
+            }
+            
+            for (const [recipeName, recipe] of Object.entries(craftRecipes)) {
+                // Only show recipes where the crafted item itself is enabled
+                const recipeNorm = recipeName.toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                let isRecipeEnabled = false;
+                for (const enabled of enabledItems) {
+                    if (recipeNorm === enabled || recipeNorm.includes(enabled) || enabled.includes(recipeNorm)) {
+                        isRecipeEnabled = true;
+                        break;
+                    }
+                }
+                
+                // Skip recipes where the crafted item is not enabled
+                if (enabledItems.size > 0 && !isRecipeEnabled) continue;
+                
+                // Calculate material cost (0 is valid, no "missing" concept)
+                let materialCost = 0;
+                
+                for (const mat of (recipe.materials || [])) {
+                    const price = getItemPrice(mat.name);
+                    materialCost += price * (mat.qty || 1);
+                }
+
+                // Get selling price - use output price based on settings (latest or 1h avg)
+                const outputPriceData = getOutputPrice(recipeName);
+                const marketSellPrice = outputPriceData.price;
+                const outputPriceSource = outputPriceData.source;
+                const unitSellPrice = marketSellPrice > 0 ? marketSellPrice : recipe.sellPrice;
+                
+                // Account for yield (items crafted) and 11% tax
+                const craftYield = recipe.yield || 1;
+                const sellPriceAfterTax = unitSellPrice * (1 - SELL_TAX);
+                const totalRevenue = sellPriceAfterTax * craftYield;
+                
+                // Calculate profit (always calculate if sell price > 0)
+                let profit = null;
+                let profitPercent = null;
+                if (unitSellPrice > 0) {
+                    profit = Math.round(totalRevenue - materialCost);
+                    profitPercent = materialCost > 0 ? ((profit / materialCost) * 100).toFixed(1) : 0;
+                }
+
+                profitData.push({
+                    name: recipeName,
+                    materials: recipe.materials || [],
+                    materialCost,
+                    unitSellPrice,
+                    totalRevenue: Math.round(totalRevenue),
+                    craftYield,
+                    defaultSellPrice: recipe.sellPrice,
+                    usingMarketPrice: marketSellPrice > 0,
+                    outputPriceSource,
+                    profit,
+                    profitPercent
+                });
+            }
+
+            // Sort by profit (highest first)
+            profitData.sort((a, b) => {
+                if (a.profit === null && b.profit === null) return 0;
+                if (a.profit === null) return 1;
+                if (b.profit === null) return -1;
+                return b.profit - a.profit;
+            });
+
+            if (profitData.length === 0) {
+                container.innerHTML = '<div class="empty-state">Enable materials in Buy Config to see recipes</div>';
+                return;
+            }
+
+            container.innerHTML = profitData.map(item => {
+                let profitColor = '#888';
+                let profitText = 'N/A';
+                
+                if (item.profit !== null) {
+                    profitColor = item.profit > 0 ? '#4ade80' : item.profit < 0 ? '#f87171' : '#888';
+                    const sign = item.profit > 0 ? '+' : '';
+                    profitText = `${sign}${item.profit.toLocaleString()} (${item.profitPercent}%)`;
+                }
+
+                const materialsText = item.materials.map(m => {
+                    const { price, source } = getItemPriceWithSource(m.name);
+                    const priceColor = source === 'db' ? '#4ade80' : source === 'manual' ? '#f87171' : '#888';
+                    return `${m.qty}x ${m.name} (<span style="color:${priceColor}">${price.toLocaleString()}</span>)`;
+                }).join(' + ');
+
+                // Show output price source
+                let sellPriceNote = 'default';
+                if (item.usingMarketPrice) {
+                    if (item.outputPriceSource === 'latest') {
+                        sellPriceNote = 'latest';
+                    } else if (item.outputPriceSource === 'db') {
+                        sellPriceNote = '1h avg';
+                    } else {
+                        sellPriceNote = 'market';
+                    }
+                }
+                const yieldText = item.craftYield > 1 ? ` x${item.craftYield}` : '';
+                const taxNote = `after ${Math.round(SELL_TAX * 100)}% tax`;
+
+                return `
+                <div class="price-item" style="border-left: 3px solid ${profitColor};">
+                    <div style="flex:1;">
+                        <div class="price-item-name">${item.name}${yieldText}</div>
+                        <div style="font-size:0.75rem;color:#888;">${materialsText}</div>
+                        <div style="font-size:0.8rem;">
+                            Cost: ${item.materialCost.toLocaleString()} → Revenue: ${item.totalRevenue.toLocaleString()} <span style="color:#666;font-size:0.7rem;">(${item.unitSellPrice.toLocaleString()} ${sellPriceNote}${yieldText}, ${taxNote})</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:1.1rem;font-weight:bold;color:${profitColor};">${profitText}</div>
+                    </div>
+                </div>
+            `}).join('');
+            } catch (e) {
+                console.error('Error rendering crafting profit:', e);
+                container.innerHTML = '<div class="empty-state">Error loading recipes</div>';
+            }
+        }
+
+        // Initial fetch of material prices and render (auto-fetch on page load)
+        async function initCraftingProfit() {
+            await fetchMaterialPrices(true);  // silent mode
+            renderCraftingProfit();
+        }
+
+        // --- Material Prices Maintenance ---
+
+        // Get all unique materials from recipes
+        function getAllRecipeMaterials() {
+            const materials = new Set();
+            for (const [name, recipe] of Object.entries(craftRecipes)) {
+                for (const mat of recipe.materials) {
+                    materials.add(mat.name);
+                }
+            }
+            return Array.from(materials).sort();
+        }
+
+        async function fetchMaterialPrices(silent = false) {
+            const btn = document.getElementById('btnFetchPrices');
+            const container = document.getElementById('materialPricesList');
+            
+            if (!silent && btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ Loading...';
+            }
+            
+            try {
+                // Get stored material prices from DB
+                const materialsRes = await fetch('/api/prices/load');
+                const dbData = await materialsRes.json();
+                
+                // Get price stats (includes last seen time)
+                const statsRes = await fetch('/api/prices/stats?range=-7 days');
+                const stats = await statsRes.json();
+                
+                // Build price data map
+                const priceData = {};
+                const recipeMaterials = getAllRecipeMaterials();
+                
+                // Helper for fuzzy name matching
+                const normalizeName = (n) => (n || '').toUpperCase().replace(/[''`]/g, '').replace(/\s+/g, ' ').trim();
+                
+                // Initialize with recipe materials
+                for (const matName of recipeMaterials) {
+                    priceData[matName] = { price: 0, lastSeen: null, source: 'none' };
+                }
+                
+                // Fill in from DB materials (fuzzy match)
+                if (dbData.materials) {
+                    for (const [dbName, data] of Object.entries(dbData.materials)) {
+                        const dbNorm = normalizeName(dbName);
+                        for (const matName of recipeMaterials) {
+                            const matNorm = normalizeName(matName);
+                            if (dbNorm === matNorm || dbNorm.includes(matNorm) || matNorm.includes(dbNorm)) {
+                                priceData[matName].price = data.price || 0;
+                                priceData[matName].source = 'db';
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Add latest stats (most recent readings) - fuzzy match
+                for (const stat of stats) {
+                    const statNorm = normalizeName(stat.item_name);
+                    for (const matName of recipeMaterials) {
+                        const matNorm = normalizeName(matName);
+                        if (statNorm === matNorm || statNorm.includes(matNorm) || matNorm.includes(statNorm)) {
+                            priceData[matName].lastSeen = stat.last_seen;
+                            priceData[matName].avgPrice = Math.round(stat.avg_price);
+                            priceData[matName].minPrice = stat.min_price;
+                            priceData[matName].count = stat.count;
+                            // Use avg price if no manual price set
+                            if (priceData[matName].price === 0 && stat.avg_price > 0) {
+                                priceData[matName].price = Math.round(stat.avg_price);
+                                priceData[matName].source = 'stats';
+                            }
+                            break;
+                        }
+                    }
+                }
+                
+                materialPricesData = priceData;
+                renderMaterialPrices();
+                renderCraftingProfit();  // Update crafting profit with new prices
+                
+            } catch (e) {
+                console.error('Failed to fetch material prices:', e);
+                if (container) container.innerHTML = '<div class="empty-state">Error loading prices</div>';
+            } finally {
+                if (!silent && btn) {
+                    btn.disabled = false;
+                    btn.textContent = '🔄 Fetch Prices';
+                }
+            }
+        }
+
+        function renderMaterialPrices() {
+            const container = document.getElementById('materialPricesList');
+            const materials = Object.entries(materialPricesData).sort((a, b) => a[0].localeCompare(b[0]));
+            
+            if (materials.length === 0) {
+                container.innerHTML = '<div class="empty-state">No materials found</div>';
+                return;
+            }
+            
+            container.innerHTML = materials.map(([name, data]) => {
+                const safeName = name.replace(/'/g, "\\'");
+                const lastSeenText = data.lastSeen 
+                    ? formatTimeAgo(new Date(data.lastSeen)) 
+                    : 'Never';
+                const statsText = data.count 
+                    ? `Avg: ${data.avgPrice?.toLocaleString() || '?'} (${data.count} readings)` 
+                    : 'No readings';
+                const priceColor = data.price > 0 ? '#4ade80' : '#f87171';
+                
+                return `
+                <div class="price-item" style="padding: 8px 12px;">
+                    <div style="flex:1;">
+                        <div style="font-weight: 500;">${name}</div>
+                        <div style="font-size: 0.75rem; color: #888;">
+                            Last seen: ${lastSeenText} | ${statsText}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="number" 
+                            class="config-item-threshold" 
+                            style="width: 100px; text-align: right; color: ${priceColor};"
+                            value="${data.price || ''}" 
+                            placeholder="0"
+                            onchange="updateMaterialPrice('${safeName}', this.value)">
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return `${Math.floor(diff / 86400)}d ago`;
+        }
+
+        async function updateMaterialPrice(name, value) {
+            const price = parseInt(value) || 0;
+            
+            try {
+                const res = await fetch(`/api/materials/${encodeURIComponent(name)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ price })
+                });
+                
+                if (res.ok) {
+                    // Update local data
+                    if (materialPricesData[name]) {
+                        materialPricesData[name].price = price;
+                    }
+                    // Re-render crafting profit with new prices
+                    renderCraftingProfit();
+                } else {
+                    console.error('Failed to save price');
+                }
+            } catch (e) {
+                console.error('Error saving material price:', e);
+            }
+        }
+
+        // Auto-fetch material prices on page load
+        setTimeout(initCraftingProfit, 200);
+    </script>
+</body>
+</html>

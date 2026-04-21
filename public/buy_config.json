@@ -1,0 +1,189 @@
+{
+  "items": {
+    "liquate": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "copperstone": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "snake tooth": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "bloodstone": {
+      "threshold": 4000,
+      "enabled": false,
+      "hidden": false
+    },
+    "shadow stone": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "iron opal": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "lesser impstone": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "darkstone": {
+      "threshold": 9000,
+      "enabled": true,
+      "hidden": false
+    },
+    "huge spessarite": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "greater impstone": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "ocean agate": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "twilight citrine": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "ketamineral": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "demon tooth": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "flaming core": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "cardinal ruby": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "hellstar": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "inferno stone": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "satans nail": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "jadenium powder": {
+      "threshold": 21000,
+      "enabled": true,
+      "hidden": false
+    },
+    "storm opal": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "demon soulstone": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "dark matter": {
+      "threshold": 10000,
+      "enabled": true,
+      "hidden": false
+    },
+    "tarethium core": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "enchanted sigil": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": true
+    },
+    "angelic key": {
+      "threshold": 49000,
+      "enabled": true,
+      "hidden": false
+    },
+    "prophet's wisdom": {
+      "threshold": 0,
+      "enabled": true,
+      "hidden": false
+    },
+    "tinkerer's toolkit": {
+      "threshold": 0,
+      "enabled": true,
+      "hidden": false
+    },
+    "angelic gem": {
+      "threshold": 0,
+      "enabled": true,
+      "hidden": false
+    },
+    "chaos gem": {
+      "threshold": 0,
+      "enabled": false,
+      "hidden": false
+    },
+    "moonstone gem": {
+      "threshold": 0,
+      "enabled": true,
+      "hidden": false
+    },
+    "elemental gem": {
+      "threshold": 0,
+      "enabled": true,
+      "hidden": false
+    },
+    "angel's wisdom": {
+      "threshold": 0,
+      "enabled": true,
+      "hidden": false
+    },
+    "angel's prophecy": {
+      "threshold": 50000,
+      "enabled": false,
+      "hidden": true
+    },
+    "soul of anguish": {
+      "threshold": 70000,
+      "enabled": true,
+      "hidden": false
+    },
+    "soul of despair": {
+      "threshold": 85000,
+      "enabled": true,
+      "hidden": false
+    },
+    "soul of corruption": {
+      "threshold": 165000,
+      "enabled": true,
+      "hidden": false
+    }
+  }
+}
