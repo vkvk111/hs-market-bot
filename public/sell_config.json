@@ -2,10 +2,10 @@
   "checkAllStaleOnStart": false,
   "items": {
     "Angel's Wisdom": {
-      "enabled": true,
-      "listingsCount": 5,
+      "enabled": false,
+      "listingsCount": 7,
       "quantityPerListing": 1,
-      "minPrice": 313371,
+      "minPrice": 308989,
       "maxPrice": 350000,
       "position": [
         1545,
@@ -13,7 +13,7 @@
       ],
       "autoPricing": true,
       "minProfit": 10000,
-      "staleRelist": true,
+      "staleRelist": false,
       "staleMinutes": 20,
       "stock": 11
     },
@@ -21,7 +21,7 @@
       "enabled": false,
       "listingsCount": 4,
       "quantityPerListing": 1,
-      "minPrice": 153576,
+      "minPrice": 150562,
       "maxPrice": 290000,
       "position": [
         1545,
@@ -33,10 +33,10 @@
       "stock": 12
     },
     "Elemental Gem": {
-      "enabled": true,
+      "enabled": false,
       "listingsCount": 3,
       "quantityPerListing": 1,
-      "minPrice": 231456,
+      "minPrice": 220225,
       "maxPrice": 350000,
       "position": [
         1545,
@@ -51,7 +51,7 @@
       "enabled": false,
       "listingsCount": 6,
       "quantityPerListing": 10,
-      "minPrice": 165000,
+      "minPrice": 152809,
       "maxPrice": 0,
       "position": [
         1545,
@@ -62,10 +62,10 @@
       "staleRelist": false
     },
     "Moonstone Gem": {
-      "enabled": true,
+      "enabled": false,
       "listingsCount": 3,
       "quantityPerListing": 1,
-      "minPrice": 228971,
+      "minPrice": 217978,
       "position": [
         1545,
         1060
@@ -91,10 +91,10 @@
       "stock": 28
     },
     "Chaos Gem": {
-      "enabled": true,
+      "enabled": false,
       "listingsCount": 3,
       "quantityPerListing": 1,
-      "minPrice": 245000,
+      "minPrice": 212360,
       "position": [
         1585,
         821
@@ -108,7 +108,7 @@
       "enabled": false,
       "listingsCount": 3,
       "quantityPerListing": 1,
-      "minPrice": 0,
+      "minPrice": 1110394,
       "position": [
         1585,
         881
@@ -119,5 +119,10 @@
       "stock": 0
     }
   },
-  "soldCounts": {}
+  "soldCounts": {
+    "angel's wisdom": 4,
+    "elemental gem": 3,
+    "moonstone gem": 3,
+    "chaos gem": 3
+  }
 }
